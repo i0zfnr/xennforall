@@ -144,6 +144,23 @@ header {
   height: 32px;
 }
 
+.brand-mark-img {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.brand-mark-img.footer-logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+}
+
 .brand-light {
   font-weight: 500;
   font-size: 21px;

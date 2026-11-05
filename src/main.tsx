@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import './style.css';
+import brandIcon from './assets/icon.png';
 import { FilePreview } from './FilePreview';
 const NewTools = lazy(() => import('./NewTools'));
 
@@ -162,9 +163,7 @@ function App() {
       <header>
         <div className="header-inner">
           <a className="brand" href="/" aria-label="Xenn for all home">
-            <span className="brand-mark">
-              <Plus size={22} strokeWidth={3} />
-            </span>
+            <img src={brandIcon} alt="" className="brand-mark-img" width={34} height={34} />
             xenn<span className="brand-light">for all<span className="brand-dot">.</span></span>
           </a>
 
@@ -589,9 +588,7 @@ function App() {
       <footer>
         <div className="footer-inner">
           <a className="brand" href="/" aria-label="Xenn for all home">
-            <span className="brand-mark">
-              <Plus size={18} strokeWidth={3} />
-            </span>
+            <img src={brandIcon} alt="" className="brand-mark-img footer-logo" width={26} height={26} />
             xenn<span className="brand-light">for all.</span>
           </a>
           <span>{t("Private client-side file tools.")}</span>
