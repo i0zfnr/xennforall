@@ -33,3 +33,6 @@ Background removal uses @imgly/background-removal under AGPL-3.0. Its full licen
 ## Verification
 
 TypeScript checking and production build pass. Browser layout, category filtering, search, and tool dialogs are checked locally. Full AI inference needs a model download and is not verified in this environment.
+
+## Application license and source
+This application is released under AGPL-3.0. Complete source: https://github.com/i0zfnr/xennforall . See LICENSE.md.
