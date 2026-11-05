@@ -19,7 +19,10 @@ import {
   Smartphone,
   Sparkles,
   Upload,
-  X
+  Volume2,
+  VolumeX,
+  X,
+  Zap
 } from 'lucide-react';
 import JSZip from 'jszip';
 
@@ -46,6 +49,7 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
 
   // Settings
   const [videoPreset, setVideoPreset] = useState<'720p' | '1080p' | 'original'>('720p');
+  const [compressionPreset, setCompressionPreset] = useState<'sweetspot' | 'ultralight' | 'maxdetail'>('sweetspot');
   const [videoFraming, setVideoFraming] = useState<'blur' | 'letterbox' | 'fill' | 'original'>('blur');
   const [videoSplitMode, setVideoSplitMode] = useState<'split' | 'first30' | 'full'>('split');
   const [imageFraming, setImageFraming] = useState<'blur' | 'letterbox' | 'original'>('blur');
@@ -54,9 +58,10 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
   // Processing state
   const [busy, setBusy] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
+  const [progressDetails, setProgressDetails] = useState<string>('');
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-  
+
   // Results
   const [resultParts, setResultParts] = useState<StatusPart[]>([]);
   const [singleImageResult, setSingleImageResult] = useState<{ blob: Blob; url: string; size: number } | null>(null);
@@ -66,8 +71,6 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
   // Hidden stage elements
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
-  const stageVideoRef = useRef<HTMLVideoElement>(null);
-  const stageCanvasRef = useRef<HTMLCanvasElement>(null);
   const previewVideoRef = useRef<HTMLVideoElement>(null);
 
   // Track created blob URLs for cleanup
@@ -108,6 +111,8 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
     if (!selectedFile) return;
     setErrorMessage('');
     setStatusMessage('');
+    setProgress(0);
+    setProgressDetails('');
     setResultParts([]);
     setSingleImageResult(null);
 
@@ -229,7 +234,6 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
         // Pass 1: Blurred background wings
         ctx.save();
         ctx.filter = 'blur(28px) brightness(0.65)';
-        // Zoom and fill canvas
         const bgScale = Math.max(targetW / img.naturalWidth, targetH / img.naturalHeight);
         const bgW = img.naturalWidth * bgScale;
         const bgH = img.naturalHeight * bgScale;
@@ -266,12 +270,12 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
 
       setProgress(90);
 
-      // Export as high quality JPEG (WhatsApp sweet spot quality: 0.92)
+      // Export as high quality JPEG (WhatsApp sweet spot quality: 0.88 keeps size well under 1MB)
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
           (b) => (b ? resolve(b) : reject(new Error(t('Failed to create optimized image.')))),
           'image/jpeg',
-          0.92
+          0.88
         );
       });
 
@@ -305,9 +309,9 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
     return { mimeType: '', ext: 'mp4' };
   }
 
-  // Transcode Video slice (startTime to endTime)
+  // Transcode Video slice (startTime to endTime) with 100% SILENT speaker audio routing
   async function transcodeSlice(
-    sourceVideo: HTMLVideoElement,
+    videoUrl: string,
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D,
     startTime: number,
@@ -317,29 +321,70 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
     bitrate: number,
     framing: string,
     sliceLabel: string,
-    onProgressUpdate: (pct: number) => void
+    onProgressUpdate: (pct: number, elapsed: number, total: number) => void
   ): Promise<Blob> {
     return new Promise<Blob>((resolve, reject) => {
+      // Create a fresh dedicated video element for this slice
+      const sourceVideo = document.createElement('video');
+      sourceVideo.playsInline = true;
+      sourceVideo.crossOrigin = 'anonymous';
+      sourceVideo.preload = 'auto';
+
+      let audioCtx: AudioContext | null = null;
+      let audioTrack: MediaStreamTrack | null = null;
+      let animFrameId = 0;
+      let isFinishing = false;
+      let recorder: MediaRecorder | null = null;
+
+      function cleanupResources() {
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        try {
+          sourceVideo.pause();
+          sourceVideo.removeAttribute('src');
+          sourceVideo.load();
+        } catch {}
+        if (audioCtx && audioCtx.state !== 'closed') {
+          try {
+            audioCtx.close();
+          } catch {}
+        }
+      }
+
+      sourceVideo.src = videoUrl;
       sourceVideo.currentTime = startTime;
 
       const handleSeeked = () => {
         sourceVideo.removeEventListener('seeked', handleSeeked);
 
-        // Prepare audio from video
-        let audioTrack: MediaStreamTrack | null = null;
+        // SILENT AUDIO ROUTING:
+        // By connecting sourceVideo to Web Audio MediaStreamDestination WITHOUT connecting
+        // to audioCtx.destination, zero sound plays to the speakers, but audio buffers
+        // are captured cleanly into MediaRecorder!
         try {
-          const videoElAny = sourceVideo as any;
-          if (typeof videoElAny.captureStream === 'function') {
-            const vStream = videoElAny.captureStream();
-            const aTracks = vStream.getAudioTracks();
-            if (aTracks && aTracks.length > 0) audioTrack = aTracks[0];
-          } else if (typeof videoElAny.mozCaptureStream === 'function') {
-            const vStream = videoElAny.mozCaptureStream();
-            const aTracks = vStream.getAudioTracks();
-            if (aTracks && aTracks.length > 0) audioTrack = aTracks[0];
+          const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+            const sourceNode = audioCtx.createMediaElementSource(sourceVideo);
+            const destinationNode = audioCtx.createMediaStreamDestination();
+            sourceNode.connect(destinationNode);
+            // CRITICAL: We DO NOT call sourceNode.connect(audioCtx.destination).
+            // This guarantees the computer/phone speakers remain 100% silent!
+            const tracks = destinationNode.stream.getAudioTracks();
+            if (tracks && tracks.length > 0) {
+              audioTrack = tracks[0];
+            }
           }
-        } catch {
-          // Audio track extraction not permitted or unavailable
+        } catch (e) {
+          // If Web Audio is restricted or video has no audio, mute video element to keep speakers silent
+          sourceVideo.muted = true;
+          try {
+            const videoElAny = sourceVideo as any;
+            if (typeof videoElAny.captureStream === 'function') {
+              const vStream = videoElAny.captureStream();
+              const aTracks = vStream.getAudioTracks();
+              if (aTracks && aTracks.length > 0) audioTrack = aTracks[0];
+            }
+          } catch {}
         }
 
         const canvasStream = canvas.captureStream(30);
@@ -355,10 +400,10 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
           recorderOptions.mimeType = chosenMime.mimeType;
         }
 
-        let recorder: MediaRecorder;
         try {
           recorder = new MediaRecorder(recordStream, recorderOptions);
         } catch (e: any) {
+          cleanupResources();
           reject(new Error(t('Browser media recorder initialization failed: ') + e.message));
           return;
         }
@@ -368,10 +413,7 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
           if (ev.data && ev.data.size > 0) chunks.push(ev.data);
         };
 
-        let animFrameId: number;
-        let isFinishing = false;
-
-        const sliceDuration = endTime - startTime;
+        const sliceDuration = Math.max(0.1, endTime - startTime);
 
         function renderFrame() {
           if (isFinishing) return;
@@ -417,7 +459,7 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
 
           const currentElapsed = Math.max(0, sourceVideo.currentTime - startTime);
           const progressRatio = Math.min(1, currentElapsed / sliceDuration);
-          onProgressUpdate(progressRatio);
+          onProgressUpdate(progressRatio, currentElapsed, sliceDuration);
 
           if (sourceVideo.currentTime >= endTime || sourceVideo.ended) {
             finishRecording();
@@ -433,38 +475,59 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
           cancelAnimationFrame(animFrameId);
           sourceVideo.pause();
 
-          recorder.onstop = () => {
-            const outType = chosenMime.mimeType || 'video/mp4';
-            const finalBlob = new Blob(chunks, { type: outType });
-            resolve(finalBlob);
-          };
+          if (recorder) {
+            recorder.onstop = () => {
+              const outType = chosenMime.mimeType || 'video/mp4';
+              const finalBlob = new Blob(chunks, { type: outType });
+              cleanupResources();
+              resolve(finalBlob);
+            };
 
-          try {
-            if (recorder.state !== 'inactive') {
-              recorder.stop();
+            try {
+              if (recorder.state !== 'inactive') {
+                recorder.stop();
+              }
+            } catch {
+              const outType = chosenMime.mimeType || 'video/mp4';
+              cleanupResources();
+              resolve(new Blob(chunks, { type: outType }));
             }
-          } catch {
-            const outType = chosenMime.mimeType || 'video/mp4';
-            resolve(new Blob(chunks, { type: outType }));
+          } else {
+            cleanupResources();
+            resolve(new Blob(chunks, { type: 'video/mp4' }));
           }
         }
 
         recorder.onerror = (ev: any) => {
-          cancelAnimationFrame(animFrameId);
-          sourceVideo.pause();
+          cleanupResources();
           reject(new Error(ev.error?.message || t('Video recording error.')));
         };
 
         recorder.start(150);
-        sourceVideo.play().then(() => {
-          animFrameId = requestAnimationFrame(renderFrame);
-        }).catch((err) => {
-          // If autoplay policy blocks with sound, try muted
-          sourceVideo.muted = true;
-          sourceVideo.play().then(() => {
+
+        // Resume AudioContext if suspended by browser policy
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+
+        sourceVideo
+          .play()
+          .then(() => {
             animFrameId = requestAnimationFrame(renderFrame);
-          }).catch(reject);
-        });
+          })
+          .catch(() => {
+            // If browser autoplay blocks without mute, mute element and retry
+            sourceVideo.muted = true;
+            sourceVideo
+              .play()
+              .then(() => {
+                animFrameId = requestAnimationFrame(renderFrame);
+              })
+              .catch((err) => {
+                cleanupResources();
+                reject(err);
+              });
+          });
       };
 
       sourceVideo.addEventListener('seeked', handleSeeked);
@@ -478,6 +541,7 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
     setErrorMessage('');
     setResultParts([]);
     setProgress(0);
+    setProgressDetails('');
 
     const sourceVideo = document.createElement('video');
     sourceVideo.playsInline = true;
@@ -497,16 +561,13 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
       // Determine target resolution
       let targetW = 720;
       let targetH = 1280;
-      let bitrate = 3500000; // 3.5 Mbps
 
       if (videoPreset === '1080p') {
         targetW = 1080;
         targetH = 1920;
-        bitrate = 4200000; // 4.2 Mbps
       } else if (videoPreset === 'original') {
         targetW = sourceVideo.videoWidth;
         targetH = sourceVideo.videoHeight;
-        // Keep within 1080p bounds if huge
         if (targetW > 1080 || targetH > 1920) {
           const factor = Math.min(1080 / targetW, 1920 / targetH);
           targetW = Math.round((targetW * factor) / 2) * 2;
@@ -514,7 +575,15 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
         }
       }
 
-      // Ensure dimensions are even numbers (required by video codecs)
+      // Bitrate calibration
+      let bitrate = 2800000; // ~2.8 Mbps sweet spot (around 9-10 MB for 30s)
+      if (compressionPreset === 'ultralight') {
+        bitrate = 1600000; // ~1.6 Mbps ultra light (around 5-6 MB for 30s)
+      } else if (compressionPreset === 'maxdetail') {
+        bitrate = 3800000; // ~3.8 Mbps max clarity (around 14 MB for 30s)
+      }
+
+      // Ensure dimensions are even numbers (required by video encoders)
       targetW = Math.round(targetW / 2) * 2;
       targetH = Math.round(targetH / 2) * 2;
 
@@ -571,12 +640,12 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
         const slice = slices[i];
         setStatusMessage(
           totalSlices > 1
-            ? `${t('Transcoding status clip')} ${i + 1} ${t('of')} ${totalSlices}…`
-            : t('Transcoding with calibrated WhatsApp bitrate…')
+            ? `${t('Silently optimizing video frames…')} (${i + 1} ${t('of')} ${totalSlices})`
+            : t('Silently optimizing video frames…')
         );
 
         const sliceBlob = await transcodeSlice(
-          sourceVideo,
+          videoUrl,
           canvas,
           ctx,
           slice.start,
@@ -586,9 +655,14 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
           bitrate,
           videoFraming,
           slice.label,
-          (pct) => {
+          (pct, elapsed, total) => {
             const overall = Math.round(((i + pct) / totalSlices) * 100);
             setProgress(overall);
+            setProgressDetails(
+              totalSlices > 1
+                ? `Clip ${i + 1}/${totalSlices} · ${elapsed.toFixed(1)}s / ${total.toFixed(1)}s`
+                : `${elapsed.toFixed(1)}s / ${total.toFixed(1)}s`
+            );
           }
         );
 
@@ -611,6 +685,7 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
           : t('Video ready for WhatsApp Status!')
       );
       setProgress(100);
+      setProgressDetails('');
     } catch (err: any) {
       setErrorMessage(err.message || t('Video processing failed.'));
     } finally {
@@ -647,6 +722,19 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
   const isVideo = mediaType === 'video';
   const hasResult = isVideo ? resultParts.length > 0 : !!singleImageResult;
 
+  // Compute size savings
+  const originalSizeMb = file ? file.size / 1024 / 1024 : 0;
+  const resultSizeMb = isVideo
+    ? (resultParts[activePartPreview]?.size || 0) / 1024 / 1024
+    : singleImageResult
+    ? singleImageResult.size / 1024 / 1024
+    : 0;
+
+  const savingsPct =
+    originalSizeMb > 0 && resultSizeMb > 0
+      ? Math.round(Math.max(0, (1 - resultSizeMb / originalSizeMb) * 100))
+      : 0;
+
   return (
     <div className="modal-backdrop workspace-backdrop" onClick={() => !busy && close()}>
       <section
@@ -672,7 +760,7 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
           </button>
           <span className="workspace-private">
             <ShieldCheck size={14} />
-            {t('Private by design · In-browser transcode')}
+            {t('Private by design · Silent in-browser transcode')}
           </span>
           <button className="workspace-close" disabled={busy} onClick={close} aria-label={t('Close tool')}>
             <X size={19} />
@@ -762,6 +850,15 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
               </button>
             ) : hasResult ? (
               <div className="status-result-stage">
+                {/* Size Savings Badge */}
+                <div className="compression-impact-pill">
+                  <Zap size={15} />
+                  <span>
+                    <strong>{originalSizeMb.toFixed(1)} MB</strong> ➔ <strong>{resultSizeMb.toFixed(1)} MB</strong>{' '}
+                    ({savingsPct}% {t('smaller · Protected from WhatsApp blur')})
+                  </span>
+                </div>
+
                 {isVideo && resultParts.length > 0 ? (
                   <div className="status-video-result">
                     <div className="phone-mockup-wrapper">
@@ -901,6 +998,15 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
                   </div>
                 )}
 
+                {/* Silent Processing Guarantee Banner */}
+                <div className="silent-badge-card">
+                  <VolumeX size={18} className="silent-icon" />
+                  <div>
+                    <strong>{t('Silent Background Processing')}</strong>
+                    <p>{t('Speakers silenced · Audio preserved in video')}</p>
+                  </div>
+                </div>
+
                 {/* The Proven WhatsApp HD Status Trick Guide */}
                 <div className="hd-trick-card">
                   <div className="trick-header" onClick={() => setShowHdTrickGuide(!showHdTrickGuide)}>
@@ -981,6 +1087,26 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
                 </div>
 
                 <label className="field">
+                  {t('Compression & Quality')}
+                  <select
+                    value={compressionPreset}
+                    disabled={busy}
+                    onChange={(e) => setCompressionPreset(e.target.value as any)}
+                  >
+                    <option value="sweetspot">{t('Balanced Sweet Spot (2.8 Mbps · Recommended)')}</option>
+                    <option value="ultralight">{t('Ultra-Compressed (1.6 Mbps · Max Size Reduction)')}</option>
+                    <option value="maxdetail">{t('High Clarity HD (3.8 Mbps · Maximum Detail)')}</option>
+                  </select>
+                  <small>
+                    {compressionPreset === 'sweetspot'
+                      ? t('Keeps status video under ~10 MB without triggering WhatsApp blur.')
+                      : compressionPreset === 'ultralight'
+                      ? t('Compresses file heavily to ~5 MB for fastest uploads.')
+                      : t('Maximum visual clarity for high-end displays.')}
+                  </small>
+                </label>
+
+                <label className="field">
                   {t('Status resolution preset')}
                   <select
                     value={videoPreset}
@@ -991,9 +1117,6 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
                     <option value="1080p">{t('1080×1920 (Full HD)')}</option>
                     <option value="original">{t('Original dimensions (Scaled bitrate)')}</option>
                   </select>
-                  <small>
-                    {t('720p stays below WhatsApp’s server re-compression trigger for the sharpest results.')}
-                  </small>
                 </label>
 
                 <label className="field">
@@ -1085,6 +1208,9 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
                       <div className="transcode-fill" style={{ width: `${progress}%` }} />
                       <span className="transcode-pct">{progress}%</span>
                     </div>
+                  )}
+                  {busy && progressDetails && (
+                    <small className="progress-details-text">{progressDetails}</small>
                   )}
                 </div>
               )}

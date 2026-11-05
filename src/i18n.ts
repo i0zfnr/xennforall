@@ -349,7 +349,19 @@ const ms: Record<string, string> = {
   'Status HD': 'Status HD',
   'Browser-Native Tools': 'Alat Berasaskan Pelayar',
   '100% Client-Side': '100% Dalam Peranti',
-  'Private by design · In-browser transcode': 'Peribadi mengikut reka bentuk · Transkod dalam pelayar'
+  'Private by design · In-browser transcode': 'Peribadi mengikut reka bentuk · Transkod dalam pelayar',
+  'Private by design · Silent in-browser transcode': 'Peribadi mengikut reka bentuk · Transkod senyap dalam pelayar',
+  'Silently optimizing video frames…': 'Sedang memproses video secara senyap…',
+  'Silent Background Processing': 'Pemprosesan Latar Belakang Senyap',
+  'Speakers silenced · Audio preserved in video': 'Pembesar suara disenyapkan · Audio dikekalkan dalam video',
+  'smaller · Protected from WhatsApp blur': 'lebih kecil · Dilindungi daripada kabur WhatsApp',
+  'Compression & Quality': 'Mampatan & Kualiti',
+  'Balanced Sweet Spot (2.8 Mbps · Recommended)': 'Titik Optimum Seimbang (2.8 Mbps · Disyorkan)',
+  'Ultra-Compressed (1.6 Mbps · Max Size Reduction)': 'Mampatan Maksimum (1.6 Mbps · Saiz Paling Kecil)',
+  'High Clarity HD (3.8 Mbps · Maximum Detail)': 'HD Kualiti Tinggi (3.8 Mbps · Perincian Maksimum)',
+  'Keeps status video under ~10 MB without triggering WhatsApp blur.': 'Mengekalkan video status bawah ~10 MB tanpa mencetuskan kabur WhatsApp.',
+  'Compresses file heavily to ~5 MB for fastest uploads.': 'Memampatkan fail dengan ketara ke ~5 MB untuk muat naik terpantas.',
+  'Maximum visual clarity for high-end displays.': 'Kejelasan visual maksimum untuk paparan berkualiti tinggi.'
 };
 
 export function t(value: string): string {
