@@ -21,6 +21,7 @@ import {
   Scissors,
   Search,
   ShieldCheck,
+  Smartphone,
   Sun,
   Upload,
   X,
@@ -31,6 +32,7 @@ import './style.css';
 import brandIcon from './assets/icon.png';
 import { FilePreview } from './FilePreview';
 const NewTools = lazy(() => import('./NewTools'));
+const StatusHdTool = lazy(() => import('./StatusHdTool'));
 
 type Tool = {
   id: string;
@@ -54,7 +56,8 @@ const tools: Tool[] = [
   { id: 'pdfimage', name: 'PDF to image', description: 'Turn PDF pages into JPG or PNG images.', category: 'PDF tools', icon: FileImage, color: 'blue', tag: 'NEW', formats: 'PDF' },
   { id: 'organize', name: 'Organize PDF', description: 'Reorder, rotate, and remove pages visually.', category: 'PDF tools', icon: Layers, color: 'rose', tag: 'NEW', formats: 'PDF' },
   { id: 'crop', name: 'Crop image', description: 'Find the perfect frame for any image.', category: 'Image tools', icon: Scissors, color: 'teal', tag: 'NEW', formats: 'PNG, JPG, WebP' },
-  { id: 'resize', name: 'Resize image', description: 'The perfect fit, wherever your image is going.', category: 'Image tools', icon: Maximize, color: 'green', formats: 'JPG, PNG, WebP' }
+  { id: 'resize', name: 'Resize image', description: 'The perfect fit, wherever your image is going.', category: 'Image tools', icon: Maximize, color: 'green', formats: 'JPG, PNG, WebP' },
+  { id: 'status_hd', name: 'WhatsApp Status HD', description: 'Prevent blurry status videos and photos with calibrated bitrate, 9:16 framing, and 30s clips.', category: 'Image tools', icon: Smartphone, color: 'green', tag: 'HOT', formats: 'MP4, MOV, JPG, PNG' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -157,6 +160,7 @@ function App() {
   }
 
   const isHeroPdf = heroFile && (heroFile.type === 'application/pdf' || heroFile.name.toLowerCase().endsWith('.pdf'));
+  const isHeroVideo = heroFile && (heroFile.type.startsWith('video/') || /\.(mp4|mov|webm|m4v|mkv)$/i.test(heroFile.name));
 
   return (
     <>
@@ -229,7 +233,7 @@ function App() {
 
               <div className="hero-cta-group">
                 <button className="primary" onClick={() => browse('All tools')}>
-                  {t("Explore 11 tools")}
+                  {t("Explore all tools")}
                   <ArrowRight size={17} />
                 </button>
                 <button className="secondary-btn" onClick={() => setInfo('How it works')}>
@@ -240,8 +244,8 @@ function App() {
               {/* Concrete proof metrics */}
               <div className="hero-metrics">
                 <div className="metric-pill">
-                  <strong>11</strong>
-                  <span>{t("11 Browser-Native Tools")}</span>
+                  <strong>{tools.length}</strong>
+                  <span>{t("Browser-Native Tools")}</span>
                 </div>
                 <div className="metric-pill">
                   <strong>100 MB</strong>
@@ -266,7 +270,7 @@ function App() {
                   <span>{t("Local sandbox active")}</span>
                 </div>
                 <div className="workstation-formats">
-                  <span>PDF · PNG · JPG · WebP</span>
+                  <span>PDF · PNG · JPG · MP4</span>
                 </div>
               </div>
 
@@ -274,7 +278,7 @@ function App() {
                 ref={heroInputRef}
                 type="file"
                 hidden
-                accept=".pdf,.png,.jpg,.jpeg,.webp"
+                accept=".pdf,.png,.jpg,.jpeg,.webp,.mp4,.mov,.webm,.m4v"
                 onChange={(e) => {
                   handleHeroFile(e.target.files?.[0]);
                   e.target.value = '';
@@ -284,7 +288,7 @@ function App() {
               {heroFile ? (
                 <div className="hero-file-selected">
                   <div className="selected-meta">
-                    <span className="file-badge">{isHeroPdf ? 'PDF' : 'IMAGE'}</span>
+                    <span className="file-badge">{isHeroPdf ? 'PDF' : isHeroVideo ? 'VIDEO' : 'IMAGE'}</span>
                     <div className="file-titles">
                       <strong>{heroFile.name}</strong>
                       <small>{(heroFile.size / 1024 / 1024).toFixed(2)} MB</small>
@@ -295,7 +299,11 @@ function App() {
                   </div>
 
                   <p className="action-prompt">
-                    {isHeroPdf ? t("Choose an action for your PDF:") : t("Choose an action for your image:")}
+                    {isHeroPdf
+                      ? t("Choose an action for your PDF:")
+                      : isHeroVideo
+                      ? t("Choose an action for your video:")
+                      : t("Choose an action for your image:")}
                   </p>
 
                   <div className="hero-actions-grid">
@@ -317,8 +325,17 @@ function App() {
                           <FileImage size={16} /> PDF to image
                         </button>
                       </>
+                    ) : isHeroVideo ? (
+                      <>
+                        <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'status_hd')!, [heroFile])}>
+                          <Smartphone size={16} /> WhatsApp Status HD
+                        </button>
+                      </>
                     ) : (
                       <>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'status_hd')!, [heroFile])}>
+                          <Smartphone size={16} /> Status HD (9:16)
+                        </button>
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'background')!, [heroFile])}>
                           <Scissors size={16} /> Remove background
                         </button>
@@ -333,9 +350,6 @@ function App() {
                         </button>
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'resize')!, [heroFile])}>
                           <Maximize size={16} /> Resize image
-                        </button>
-                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'imagepdf')!, [heroFile])}>
-                          <FileImage size={16} /> Image to PDF
                         </button>
                       </>
                     )}
@@ -360,7 +374,7 @@ function App() {
                     <Upload size={24} />
                   </div>
                   <strong>{t("Drop your file here, or browse")}</strong>
-                  <span>{t("Select a PDF or image to quickly launch the right tool.")}</span>
+                  <span>{t("Select a PDF, image, or video to quickly launch the right tool.")}</span>
                 </div>
               )}
 
@@ -382,6 +396,7 @@ function App() {
                     <Image size={13} /> {t("Image Studio")}:
                   </span>
                   <div className="suite-chips">
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'status_hd')!)}>Status HD</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'background')!)}>Cutout</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'compress')!)}>Compress</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'crop')!)}>Crop</button>
@@ -615,6 +630,24 @@ function App() {
           >
             <NewTools
               kind={active.id as 'pdfimage' | 'organize' | 'crop'}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'status_hd' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <StatusHdTool
+              initialFiles={initialFiles}
               close={() => {
                 setActive(null);
                 setInitialFiles([]);

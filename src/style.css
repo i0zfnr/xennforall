@@ -2107,3 +2107,314 @@ footer span {
     scroll-behavior: auto !important;
   }
 }
+
+/* WhatsApp Status HD Optimizer Styles */
+.status-hd-workspace {
+  max-width: 1280px;
+}
+
+.workspace-heading-tags {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.hd-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-result-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 20px;
+  width: 100%;
+}
+
+.phone-mockup-wrapper {
+  position: relative;
+  width: 250px;
+  height: 444px;
+  background: #000;
+  border: 4px solid var(--border-card);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.phone-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050505;
+}
+
+.phone-screen video,
+.phone-screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.status-overlay-chip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #fff;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.status-overlay-chip span {
+  font-size: 10px;
+  color: #22c55e;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.status-overlay-chip strong {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-parts-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 6px 4px;
+}
+
+.part-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 44px;
+}
+
+.part-chip.active {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.part-chip span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.part-chip small {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.result-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+.status-source-stage {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.source-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+}
+
+.source-icon {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.source-card strong {
+  font-size: 14px;
+  color: var(--text-main);
+  display: block;
+  word-break: break-all;
+}
+
+.source-card p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.duration-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.duration-alert svg {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.hd-trick-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.trick-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  background: rgba(34, 197, 94, 0.06);
+  border-bottom: 1px solid var(--border-card);
+  min-height: 44px;
+}
+
+.trick-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--text-main);
+}
+
+.trick-title svg {
+  color: #22c55e;
+}
+
+.trick-steps {
+  padding: 16px 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  list-style-position: inside;
+}
+
+.trick-steps strong {
+  color: var(--text-main);
+}
+
+.transcode-bar {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  background: var(--border-subtle);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.transcode-fill {
+  height: 100%;
+  background: #22c55e;
+  transition: width 0.2s ease;
+}
+
+.transcode-pct {
+  position: absolute;
+  right: 6px;
+  top: -1px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 14px;
+}
+
+.status-progress-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.field-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.field-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #22c55e;
+}
+
+.field-checkbox span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.field-checkbox strong {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.field-checkbox small {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
