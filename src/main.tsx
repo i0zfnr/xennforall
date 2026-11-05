@@ -23,7 +23,8 @@ import {
   ShieldCheck,
   Sun,
   Upload,
-  X
+  X,
+  Zap
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import './style.css';
@@ -38,20 +39,21 @@ type Tool = {
   icon: LucideIcon;
   color: string;
   tag?: string;
+  formats: string;
 };
 
 const tools: Tool[] = [
-  { id: 'merge', name: 'Merge PDF', description: 'Bring your PDFs together. One file, perfectly in order.', category: 'PDF tools', icon: Merge, color: 'coral', tag: 'POPULAR' },
-  { id: 'split', name: 'Split PDF', description: 'Keep the pages you need. Leave the rest behind.', category: 'PDF tools', icon: Scissors, color: 'orange' },
-  { id: 'background', name: 'Remove background', description: 'Make your subject the star. Clean cutouts in a click.', category: 'Image tools', icon: Scissors, color: 'violet', tag: 'POPULAR' },
-  { id: 'compress', name: 'Compress image', description: 'Smaller files. Same big impression.', category: 'Image tools', icon: ArrowDownToLine, color: 'blue' },
-  { id: 'imagepdf', name: 'Image to PDF', description: 'Turn your JPGs and PNGs into a tidy PDF.', category: 'PDF tools', icon: FileImage, color: 'amber' },
-  { id: 'convert', name: 'Convert image', description: 'A fresh format. Convert to JPG, PNG, or WebP.', category: 'Image tools', icon: Image, color: 'teal' },
-  { id: 'rotate', name: 'Rotate PDF', description: 'Give your pages a turn in the right direction.', category: 'PDF tools', icon: RotateCw, color: 'rose' },
-  { id: 'pdfimage', name: 'PDF to image', description: 'Turn PDF pages into JPG or PNG images.', category: 'PDF tools', icon: FileImage, color: 'blue', tag: 'NEW' },
-  { id: 'organize', name: 'Organize PDF', description: 'Reorder, rotate, and remove pages visually.', category: 'PDF tools', icon: Layers, color: 'rose', tag: 'NEW' },
-  { id: 'crop', name: 'Crop image', description: 'Find the perfect frame for any image.', category: 'Image tools', icon: Scissors, color: 'teal', tag: 'NEW' },
-  { id: 'resize', name: 'Resize image', description: 'The perfect fit, wherever your image is going.', category: 'Image tools', icon: Maximize, color: 'green' }
+  { id: 'merge', name: 'Merge PDF', description: 'Bring your PDFs together. One file, perfectly in order.', category: 'PDF tools', icon: Merge, color: 'coral', tag: 'POPULAR', formats: 'PDF' },
+  { id: 'split', name: 'Split PDF', description: 'Keep the pages you need. Leave the rest behind.', category: 'PDF tools', icon: Scissors, color: 'orange', formats: 'PDF' },
+  { id: 'background', name: 'Remove background', description: 'Make your subject the star. Clean cutouts in a click.', category: 'Image tools', icon: Scissors, color: 'violet', tag: 'POPULAR', formats: 'PNG, JPG, WebP' },
+  { id: 'compress', name: 'Compress image', description: 'Smaller files. Same big impression.', category: 'Image tools', icon: ArrowDownToLine, color: 'blue', formats: 'JPG, PNG, WebP' },
+  { id: 'imagepdf', name: 'Image to PDF', description: 'Turn your JPGs and PNGs into a tidy PDF.', category: 'PDF tools', icon: FileImage, color: 'amber', formats: 'JPG, PNG, WebP' },
+  { id: 'convert', name: 'Convert image', description: 'A fresh format. Convert to JPG, PNG, or WebP.', category: 'Image tools', icon: Image, color: 'teal', formats: 'PNG, JPG, WebP' },
+  { id: 'rotate', name: 'Rotate PDF', description: 'Give your pages a turn in the right direction.', category: 'PDF tools', icon: RotateCw, color: 'rose', formats: 'PDF' },
+  { id: 'pdfimage', name: 'PDF to image', description: 'Turn PDF pages into JPG or PNG images.', category: 'PDF tools', icon: FileImage, color: 'blue', tag: 'NEW', formats: 'PDF' },
+  { id: 'organize', name: 'Organize PDF', description: 'Reorder, rotate, and remove pages visually.', category: 'PDF tools', icon: Layers, color: 'rose', tag: 'NEW', formats: 'PDF' },
+  { id: 'crop', name: 'Crop image', description: 'Find the perfect frame for any image.', category: 'Image tools', icon: Scissors, color: 'teal', tag: 'NEW', formats: 'PNG, JPG, WebP' },
+  { id: 'resize', name: 'Resize image', description: 'The perfect fit, wherever your image is going.', category: 'Image tools', icon: Maximize, color: 'green', formats: 'JPG, PNG, WebP' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -105,9 +107,15 @@ function App() {
   const [category, setCategory] = useState('All tools');
   const [query, setQuery] = useState('');
   const [active, setActive] = useState<Tool | null>(null);
+  const [initialFiles, setInitialFiles] = useState<File[]>([]);
   const [info, setInfo] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  // Hero Drop Zone State
+  const [heroFile, setHeroFile] = useState<File | null>(null);
+  const [heroDrag, setHeroDrag] = useState(false);
+  const heroInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -130,260 +138,444 @@ function App() {
       `${tool.name} ${tool.description} ${t(tool.name)} ${t(tool.description)}`.toLowerCase().includes(query.toLowerCase())
   );
 
+  function openToolWithFiles(tool: Tool, files: File[]) {
+    setInitialFiles(files);
+    setActive(tool);
+    setHeroFile(null);
+  }
+
+  function handleHeroFile(f: File | undefined) {
+    if (!f) return;
+    setHeroFile(f);
+  }
+
   function browse(cat: string) {
     setCategory(cat);
     setMobile(false);
     document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' });
   }
 
+  const isHeroPdf = heroFile && (heroFile.type === 'application/pdf' || heroFile.name.toLowerCase().endsWith('.pdf'));
+
   return (
     <>
       <header>
-        <a className="brand" href="/" aria-label="Xenn for all home">
-          <span className="brand-mark">
-            <Plus size={22} strokeWidth={3} />
-          </span>
-          xenn<span className="brand-light">for all<span className="brand-dot">.</span></span>
-        </a>
+        <div className="header-inner">
+          <a className="brand" href="/" aria-label="Xenn for all home">
+            <span className="brand-mark">
+              <Plus size={22} strokeWidth={3} />
+            </span>
+            xenn<span className="brand-light">for all<span className="brand-dot">.</span></span>
+          </a>
 
-        <nav className={mobile ? 'nav open' : 'nav'}>
-          <button onClick={() => browse('All tools')}>
-            {t("All tools")}
-            <ChevronDown size={14} />
-          </button>
-          <button onClick={() => browse('PDF tools')}>{t("PDF tools")}</button>
-          <button onClick={() => browse('Image tools')}>{t("Image tools")}</button>
-          <button onClick={() => setInfo('How it works')}>{t("How it works")}</button>
-          <button onClick={() => setInfo('About Xenn for all')}>{t("About")}</button>
-        </nav>
+          <nav className={mobile ? 'nav open' : 'nav'}>
+            <button onClick={() => browse('All tools')}>
+              {t("All tools")}
+              <ChevronDown size={14} />
+            </button>
+            <button onClick={() => browse('PDF tools')}>{t("PDF tools")}</button>
+            <button onClick={() => browse('Image tools')}>{t("Image tools")}</button>
+            <button onClick={() => setInfo('How it works')}>{t("How it works")}</button>
+            <button onClick={() => setInfo('About Xenn for all')}>{t("About")}</button>
+          </nav>
 
-        <div className="header-actions">
-          <label className="language-switch">
-            <span className="language-label">{language === 'ms' ? 'Bahasa' : 'Language'}</span>
-            <select
-              aria-label="Language / Bahasa"
-              value={language}
-              onChange={(e) => setLanguage(e.target.value as 'en' | 'ms')}
+          <div className="header-actions">
+            <label className="language-switch">
+              <span className="language-label">{language === 'ms' ? 'Bahasa' : 'Language'}</span>
+              <select
+                aria-label="Language / Bahasa"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as 'en' | 'ms')}
+              >
+                <option value="en">English</option>
+                <option value="ms">Bahasa Melayu</option>
+              </select>
+            </label>
+
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? t("Switch to light mode") : t("Switch to dark mode")}
+              title={theme === 'dark' ? t("Switch to light mode") : t("Switch to dark mode")}
             >
-              <option value="en">English</option>
-              <option value="ms">Bahasa Melayu</option>
-            </select>
-          </label>
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
 
-          <button
-            className="theme-toggle"
-            onClick={toggleTheme}
-            aria-label={theme === 'dark' ? t("Switch to light mode") : t("Switch to dark mode")}
-            title={theme === 'dark' ? t("Switch to light mode") : t("Switch to dark mode")}
-          >
-            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
-
-          <button
-            className="mobile-menu"
-            aria-label={t("Toggle navigation")}
-            onClick={() => setMobile(!mobile)}
-          >
-            {mobile ? <X size={22} /> : <Menu size={22} />}
-          </button>
+            <button
+              className="mobile-menu"
+              aria-label={t("Toggle navigation")}
+              onClick={() => setMobile(!mobile)}
+            >
+              {mobile ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </div>
       </header>
 
       <main>
+        {/* Expansive Hero Section */}
         <section className="hero">
-          <div className="hero-copy">
-            <div className="eyebrow">
-              <span className="eyebrow-pill" />
-              {t("YOUR CLIENT-SIDE WORKSTATION")}
-            </div>
-            <h1>
-              {t("Simple, private tools for your PDFs and images.")}
-            </h1>
-            <p>
-              {t("Runs 100% in your browser. No accounts, no subscriptions, and zero file uploads to any server.")}
-            </p>
-            <div className="hero-cta-group">
-              <button className="primary" onClick={() => browse('All tools')}>
-                {t("Explore 11 tools")}
-                <ArrowRight size={17} />
-              </button>
-            </div>
-            <div className="hero-promises">
-              <span>
-                <Check size={14} />
-                {t("Client-side execution")}
-              </span>
-              <span>
-                <Check size={14} />
-                {t("Zero server uploads")}
-              </span>
-              <span>
-                <Check size={14} />
-                {t("Free and open source")}
-              </span>
-            </div>
-          </div>
+          <div className="hero-container">
+            <div className="hero-copy">
+              <div className="eyebrow">
+                <span className="eyebrow-pill" />
+                {t("PRIVATE CLIENT-SIDE WORKSTATION")}
+              </div>
+              <h1>
+                {t("Simple, private tools for your PDFs and images.")}
+              </h1>
+              <p className="hero-description">
+                {t("Runs 100% in your browser. No accounts, no subscriptions, and zero file uploads to any server.")}
+              </p>
 
-          <div className="hero-architecture-card" aria-label="Client-side architecture overview">
-            <div className="pipeline-header">
-              <span className="pipeline-status">
-                <span className="pipeline-dot" />
-                {t("Local sandbox active")}
-              </span>
-              <span className="pipeline-engine">WebAssembly & Canvas</span>
-            </div>
-
-            <div className="pipeline-steps">
-              <div className="pipeline-step">
-                <span className="step-tag">01</span>
-                <div className="step-info">
-                  <strong>{t("Input document")}</strong>
-                  <small>PDF, JPG, PNG, WebP</small>
-                </div>
+              <div className="hero-cta-group">
+                <button className="primary" onClick={() => browse('All tools')}>
+                  {t("Explore 11 tools")}
+                  <ArrowRight size={17} />
+                </button>
+                <button className="secondary-btn" onClick={() => setInfo('How it works')}>
+                  {t("How it works")}
+                </button>
               </div>
 
-              <div className="pipeline-arrow">↓</div>
-
-              <div className="pipeline-step active-step">
-                <span className="step-tag">02</span>
-                <div className="step-info">
-                  <strong>{t("WebAssembly & Canvas engine")}</strong>
-                  <small>pdf-lib · PDF.js · ONNX Runtime</small>
+              {/* Concrete proof metrics */}
+              <div className="hero-metrics">
+                <div className="metric-pill">
+                  <strong>11</strong>
+                  <span>{t("11 Browser-Native Tools")}</span>
                 </div>
-              </div>
-
-              <div className="pipeline-arrow">↓</div>
-
-              <div className="pipeline-step">
-                <span className="step-tag">03</span>
-                <div className="step-info">
-                  <strong>{t("Local export")}</strong>
-                  <small>{t("Zero server uploads")}</small>
+                <div className="metric-pill">
+                  <strong>100 MB</strong>
+                  <span>{t("100 MB File Limit")}</span>
+                </div>
+                <div className="metric-pill">
+                  <strong>0 KB</strong>
+                  <span>{t("0 KB Uploaded")}</span>
+                </div>
+                <div className="metric-pill">
+                  <strong>AGPL-3.0</strong>
+                  <span>{t("AGPL-3.0 License")}</span>
                 </div>
               </div>
             </div>
 
-            <div className="pipeline-shortcuts">
-              <span className="shortcuts-label">{t("Quick start:")}</span>
-              <div className="shortcuts-row">
-                <button onClick={() => setActive(tools[0])}>Merge PDF</button>
-                <button onClick={() => setActive(tools[2])}>Remove background</button>
-                <button onClick={() => setActive(tools[3])}>Compress image</button>
-                <button onClick={() => setActive(tools[9])}>Crop image</button>
+            {/* Interactive Hero Workstation Card */}
+            <div className="hero-workstation-card" aria-label="Interactive client-side file hub">
+              <div className="workstation-top">
+                <div className="sandbox-indicator">
+                  <span className="pipeline-dot" />
+                  <span>{t("Local sandbox active")}</span>
+                </div>
+                <div className="workstation-formats">
+                  <span>PDF · PNG · JPG · WebP</span>
+                </div>
+              </div>
+
+              <input
+                ref={heroInputRef}
+                type="file"
+                hidden
+                accept=".pdf,.png,.jpg,.jpeg,.webp"
+                onChange={(e) => {
+                  handleHeroFile(e.target.files?.[0]);
+                  e.target.value = '';
+                }}
+              />
+
+              {heroFile ? (
+                <div className="hero-file-selected">
+                  <div className="selected-meta">
+                    <span className="file-badge">{isHeroPdf ? 'PDF' : 'IMAGE'}</span>
+                    <div className="file-titles">
+                      <strong>{heroFile.name}</strong>
+                      <small>{(heroFile.size / 1024 / 1024).toFixed(2)} MB</small>
+                    </div>
+                    <button className="clear-btn" onClick={() => setHeroFile(null)} aria-label={t("Clear file")}>
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <p className="action-prompt">
+                    {isHeroPdf ? t("Choose an action for your PDF:") : t("Choose an action for your image:")}
+                  </p>
+
+                  <div className="hero-actions-grid">
+                    {isHeroPdf ? (
+                      <>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'merge')!, [heroFile])}>
+                          <Merge size={16} /> Merge PDF
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'split')!, [heroFile])}>
+                          <Scissors size={16} /> Split PDF
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'organize')!, [heroFile])}>
+                          <Layers size={16} /> Organize PDF
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'rotate')!, [heroFile])}>
+                          <RotateCw size={16} /> Rotate PDF
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'pdfimage')!, [heroFile])}>
+                          <FileImage size={16} /> PDF to image
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'background')!, [heroFile])}>
+                          <Scissors size={16} /> Remove background
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'compress')!, [heroFile])}>
+                          <ArrowDownToLine size={16} /> Compress image
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'crop')!, [heroFile])}>
+                          <Scissors size={16} /> Crop image
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'convert')!, [heroFile])}>
+                          <Image size={16} /> Convert format
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'resize')!, [heroFile])}>
+                          <Maximize size={16} /> Resize image
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'imagepdf')!, [heroFile])}>
+                          <FileImage size={16} /> Image to PDF
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={`hero-dropzone ${heroDrag ? 'drag' : ''}`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setHeroDrag(true);
+                  }}
+                  onDragLeave={() => setHeroDrag(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setHeroDrag(false);
+                    handleHeroFile(e.dataTransfer.files?.[0]);
+                  }}
+                  onClick={() => heroInputRef.current?.click()}
+                >
+                  <div className="dropzone-icon">
+                    <Upload size={24} />
+                  </div>
+                  <strong>{t("Drop your file here, or browse")}</strong>
+                  <span>{t("Select a PDF or image to quickly launch the right tool.")}</span>
+                </div>
+              )}
+
+              {/* Suite Quick-Pill Row */}
+              <div className="workstation-suites">
+                <div className="suite-group">
+                  <span className="suite-title">
+                    <Files size={13} /> {t("PDF Suite")}:
+                  </span>
+                  <div className="suite-chips">
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'merge')!)}>Merge</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'split')!)}>Split</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'organize')!)}>Organize</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'rotate')!)}>Rotate</button>
+                  </div>
+                </div>
+                <div className="suite-group">
+                  <span className="suite-title">
+                    <Image size={13} /> {t("Image Studio")}:
+                  </span>
+                  <div className="suite-chips">
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'background')!)}>Cutout</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'compress')!)}>Compress</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'crop')!)}>Crop</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'convert')!)}>Convert</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
+        {/* Expansive Tool Directory Section */}
         <section className="tools-section" id="tools">
-          <div className="section-top">
-            <div>
-              <div className="eyebrow">{t("YOUR EVERYDAY TOOLKIT")}</div>
-              <h2>{t("Select a tool to begin")}</h2>
-              <p>{t("A focused suite of browser-native utilities for daily file tasks.")}</p>
+          <div className="section-container">
+            <div className="section-top">
+              <div>
+                <div className="eyebrow">{t("YOUR EVERYDAY TOOLKIT")}</div>
+                <h2>{t("Select a tool to begin")}</h2>
+                <p>{t("A focused suite of browser-native utilities for daily file tasks.")}</p>
+              </div>
+              <label className="search">
+                <Search size={18} />
+                <input
+                  ref={searchRef}
+                  placeholder={t("Find a tool…")}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  aria-label={t("Search tools")}
+                />
+                <kbd>Ctrl K</kbd>
+              </label>
             </div>
-            <label className="search">
-              <Search size={18} />
-              <input
-                ref={searchRef}
-                placeholder={t("Find a tool…")}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                aria-label={t("Search tools")}
-              />
-              <kbd>Ctrl K</kbd>
-            </label>
-          </div>
 
-          <div className="filter-row">
-            <div className="filters">
-              {['All tools', 'PDF tools', 'Image tools'].map((cat, i) => (
+            <div className="filter-row">
+              <div className="filters">
+                {['All tools', 'PDF tools', 'Image tools'].map((cat, i) => (
+                  <button
+                    className={category === cat ? 'selected' : ''}
+                    onClick={() => setCategory(cat)}
+                    key={cat}
+                  >
+                    {i === 0 ? <Layers size={15} /> : i === 1 ? <Files size={15} /> : <Image size={15} />}{' '}
+                    {t(cat)}
+                    <span>{i === 0 ? tools.length : tools.filter((t) => t.category === cat).length}</span>
+                  </button>
+                ))}
+              </div>
+              <span className="local-note">
+                <ShieldCheck size={15} />
+                {t("Your files stay on your device")}
+              </span>
+            </div>
+
+            <div className="tool-grid">
+              {visible.map((tool) => (
                 <button
-                  className={category === cat ? 'selected' : ''}
-                  onClick={() => setCategory(cat)}
-                  key={cat}
+                  key={tool.id}
+                  className="tool-card"
+                  onClick={() => openToolWithFiles(tool, [])}
                 >
-                  {i === 0 ? <Layers size={15} /> : i === 1 ? <Files size={15} /> : <Image size={15} />}{' '}
-                  {t(cat)}
-                  <span>{i === 0 ? tools.length : tools.filter((t) => t.category === cat).length}</span>
+                  <div className="card-top">
+                    <span className={`tool-icon ${tool.color}`}>
+                      <tool.icon size={22} strokeWidth={1.8} />
+                    </span>
+                    <div className="card-badges">
+                      {tool.tag && <span className="tag">{t(tool.tag)}</span>}
+                      <span className="card-format-tag">{tool.formats}</span>
+                    </div>
+                  </div>
+                  <h3>{t(tool.name)}</h3>
+                  <p>{t(tool.description)}</p>
+                  <div className="card-footer">
+                    <span className="card-category">
+                      {tool.category === 'PDF tools' ? t('PDF TOOL') : t('IMAGE TOOL')}
+                    </span>
+                    <span className="card-action-link">
+                      Open <ArrowRight size={14} />
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
-            <span className="local-note">
-              <ShieldCheck size={15} />
-              {t("Your files stay on your device")}
-            </span>
-          </div>
 
-          <div className="tool-grid">
-            {visible.map((tool) => (
-              <button key={tool.id} className="tool-card" onClick={() => setActive(tool)}>
-                <div className="card-top">
-                  <span className={`tool-icon ${tool.color}`}>
-                    <tool.icon size={24} strokeWidth={1.8} />
-                  </span>
-                  {tool.tag && (
-                    <span className="tag">{t(tool.tag)}</span>
-                  )}
-                  <ArrowRight className="card-arrow" size={17} />
-                </div>
-                <h3>{t(tool.name)}</h3>
-                <p>{t(tool.description)}</p>
-                <span className="card-category">
-                  {tool.category === 'PDF tools' ? t('PDF TOOL') : t('IMAGE TOOL')}
-                </span>
-              </button>
-            ))}
+            {visible.length === 0 && (
+              <div className="empty">
+                {t("No tools found. Try “PDF” or “image”.")}
+                <button
+                  onClick={() => {
+                    setQuery('');
+                    setCategory('All tools');
+                  }}
+                >
+                  {t("Show all tools")}
+                </button>
+              </div>
+            )}
           </div>
-
-          {visible.length === 0 && (
-            <div className="empty">
-              {t("No tools found. Try “PDF” or “image”.")}
-              <button
-                onClick={() => {
-                  setQuery('');
-                  setCategory('All tools');
-                }}
-              >
-                {t("Show all tools")}
-              </button>
-            </div>
-          )}
         </section>
 
-        <section className="values">
-          <div className="value-intro">
-            <h2>{t("Why in-browser processing matters")}</h2>
-            <p>
-              {t("Traditional web tools send your sensitive files to cloud servers. Xenn for all processes every byte locally on your machine.")}
-            </p>
-          </div>
-          <div className="value-item">
-            <span className="value-icon">
-              <ShieldCheck size={22} />
-            </span>
-            <h3>{t("Zero server uploads")}</h3>
-            <p>
-              {t("Your files never leave your device. Processing occurs in sandboxed browser memory and is discarded when done.")}
-            </p>
-          </div>
-          <div className="value-item">
-            <span className="value-icon">
-              <Cpu size={22} />
-            </span>
-            <h3>{t("Powered by your hardware")}</h3>
-            <p>
-              {t("PDF reordering, image compression, and AI background removal run locally via WebAssembly and ONNX Runtime.")}
-            </p>
-          </div>
-          <div className="value-item">
-            <span className="value-icon">
-              <LockKeyhole size={22} />
-            </span>
-            <h3>{t("No accounts or tracking")}</h3>
-            <p>
-              {t("No sign-up screens, usage limits, email requests, or paywalls. Open the page and complete your task.")}
-            </p>
+        {/* 4-Pillar Architectural Proof Section */}
+        <section className="architecture-section">
+          <div className="section-container">
+            <div className="architecture-header">
+              <div className="eyebrow">{t("PRIVACY & ARCHITECTURE")}</div>
+              <h2>{t("Why in-browser processing matters")}</h2>
+              <p>
+                {t("Traditional web tools send your sensitive files to cloud servers. Xenn for all processes every byte locally on your machine.")}
+              </p>
+            </div>
+
+            <div className="architecture-grid">
+              <div className="arch-card">
+                <span className="arch-icon">
+                  <ShieldCheck size={24} />
+                </span>
+                <h3>{t("Zero server uploads")}</h3>
+                <p>
+                  {t("Your files never leave your device. Processing occurs in sandboxed browser memory and is discarded when done.")}
+                </p>
+              </div>
+
+              <div className="arch-card">
+                <span className="arch-icon">
+                  <Cpu size={24} />
+                </span>
+                <h3>{t("Powered by your hardware")}</h3>
+                <p>
+                  {t("PDF reordering, image compression, and AI background removal run locally via WebAssembly and ONNX Runtime.")}
+                </p>
+              </div>
+
+              <div className="arch-card">
+                <span className="arch-icon">
+                  <LockKeyhole size={24} />
+                </span>
+                <h3>{t("No accounts or tracking")}</h3>
+                <p>
+                  {t("No sign-up screens, usage limits, email requests, or paywalls. Open the page and complete your task.")}
+                </p>
+              </div>
+
+              <div className="arch-card">
+                <span className="arch-icon">
+                  <Zap size={24} />
+                </span>
+                <h3>{t("Offline capable")}</h3>
+                <p>
+                  {t("Once loaded into your browser cache, core tools operate without depending on external web services.")}
+                </p>
+              </div>
+            </div>
+
+            {/* Architecture Comparison Table */}
+            <div className="comparison-container">
+              <div className="comparison-header">
+                <h3>{t("Privacy & Architecture Comparison")}</h3>
+                <p>{t("How Xenn for all compares with cloud-based file tools.")}</p>
+              </div>
+
+              <div className="comparison-table-wrapper">
+                <table className="comparison-table">
+                  <thead>
+                    <tr>
+                      <th>Capability</th>
+                      <th>{t("Traditional Cloud Converters")}</th>
+                      <th>{t("Xenn for all (Local WebAssembly)")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>{t("File Upload to Server")}</strong></td>
+                      <td><span className="bad-pill">✕ {t("Yes, files sent over network")}</span></td>
+                      <td><span className="good-pill">✓ {t("Zero bytes uploaded (100% in-browser)")}</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>{t("Document Privacy")}</strong></td>
+                      <td>{t("Stored on third-party cloud")}</td>
+                      <td><strong>{t("Never leaves your device RAM")}</strong></td>
+                    </tr>
+                    <tr>
+                      <td><strong>{t("Account Requirement")}</strong></td>
+                      <td>{t("Often requires sign-up")}</td>
+                      <td><strong>{t("Never required")}</strong></td>
+                    </tr>
+                    <tr>
+                      <td><strong>{t("Pricing & Subscriptions")}</strong></td>
+                      <td>{t("Free trial with recurring fee")}</td>
+                      <td><span className="good-pill">✓ {t("100% Free and open source")}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -395,19 +587,21 @@ function App() {
       </main>
 
       <footer>
-        <a className="brand" href="/" aria-label="Xenn for all home">
-          <span className="brand-mark">
-            <Plus size={18} strokeWidth={3} />
-          </span>
-          xenn<span className="brand-light">for all.</span>
-        </a>
-        <span>{t("Private client-side file tools.")}</span>
-        <div className="footer-links">
-          <button onClick={() => setInfo('Privacy')}>{t("Privacy")}</button>
-          <button onClick={() => setInfo('About Xenn for all')}>{t("About")}</button>
-          <a href="https://github.com/i0zfnr/xennforall" target="_blank" rel="noreferrer">
-            {t("Source code")}
+        <div className="footer-inner">
+          <a className="brand" href="/" aria-label="Xenn for all home">
+            <span className="brand-mark">
+              <Plus size={18} strokeWidth={3} />
+            </span>
+            xenn<span className="brand-light">for all.</span>
           </a>
+          <span>{t("Private client-side file tools.")}</span>
+          <div className="footer-links">
+            <button onClick={() => setInfo('Privacy')}>{t("Privacy")}</button>
+            <button onClick={() => setInfo('About Xenn for all')}>{t("About")}</button>
+            <a href="https://github.com/i0zfnr/xennforall" target="_blank" rel="noreferrer">
+              {t("Source code")}
+            </a>
+          </div>
         </div>
       </footer>
 
@@ -424,11 +618,21 @@ function App() {
           >
             <NewTools
               kind={active.id as 'pdfimage' | 'organize' | 'crop'}
-              close={() => setActive(null)}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
             />
           </Suspense>
         ) : (
-          <ToolDialog tool={active} close={() => setActive(null)} />
+          <ToolDialog
+            tool={active}
+            initialFiles={initialFiles}
+            close={() => {
+              setActive(null);
+              setInitialFiles([]);
+            }}
+          />
         ))}
 
       {info && (
@@ -472,8 +676,16 @@ function App() {
   );
 }
 
-function ToolDialog({ tool, close }: { tool: Tool; close: () => void }) {
-  const [files, setFiles] = useState<File[]>([]);
+function ToolDialog({
+  tool,
+  initialFiles = [],
+  close
+}: {
+  tool: Tool;
+  initialFiles?: File[];
+  close: () => void;
+}) {
+  const [files, setFiles] = useState<File[]>(initialFiles);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
