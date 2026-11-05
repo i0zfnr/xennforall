@@ -5,7 +5,7 @@ const PdfPages = lazy(() => import('./PdfPages'));
 
 function ImageTile({file, index}: {file:File; index:number}) {
   const url = useBlobUrl(file);
-  return <figure className="image-tile"><img src={url} alt={`Page ${index+1}: ${file.name}`}/><figcaption><b>{index+1}</b> {file.name}</figcaption></figure>;
+  return <figure className="image-tile"><img src={url || undefined} alt={`Page ${index+1}: ${file.name}`}/><figcaption><b>{index+1}</b> {file.name}</figcaption></figure>;
 }
 
 const processingLabels: Record<string,string> = {merge:'Bringing your PDFs together…',split:'Extracting your selected pages…',rotate:'Turning your pages…',imagepdf:'Creating your PDF…'};
@@ -30,3 +30,4 @@ export function FilePreview({files, result, busy, toolId, toolName}: {files:File
     <p className="preview-caption">{busy ? 'Working privately on your device.' : isResult ? 'Browse the finished pages, then download your PDF below.' : toolId==='merge' ? 'Preview each file above. Use the arrows in the file list to change the merge order.' : toolId==='imagepdf' ? 'Each image becomes a page. Use the arrows in the file list to change the order.' : toolId==='split' ? 'Browse your pages, then enter the page numbers to keep below.' : 'Browse your original pages. Choose an angle below to rotate every page.'}</p>
   </section>;
 }
+

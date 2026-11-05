@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
+import { getDocument } from 'pdfjs-dist';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { WorkerMessageHandler } from 'pdfjs-dist/build/pdf.worker.mjs';
 
-GlobalWorkerOptions.workerSrc = workerUrl;
+// Use PDF.js's supported main-thread fallback for hosts that block module workers.
+// The renderer stays lazy-loaded and does not send any file data off the device.
+Object.assign(globalThis, { pdfjsWorker: { WorkerMessageHandler } });
 
 export default function PdfPages({ blob }: { blob: Blob }) {
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
@@ -56,4 +58,5 @@ export default function PdfPages({ blob }: { blob: Blob }) {
     {document && <div className="pdf-pagination"><button disabled={page <= 1} aria-label="Previous PDF page" onClick={() => setPage(n => n - 1)}><ChevronLeft size={16}/></button><span>Page {page} of {document.numPages}</span><button disabled={page >= document.numPages} aria-label="Next PDF page" onClick={() => setPage(n => n + 1)}><ChevronRight size={16}/></button></div>}
   </div>;
 }
+
 
