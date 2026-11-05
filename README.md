@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173. Build with `npm run build`; the `dist` directory can be served by any static host. The project is local and has not been published to the internet.
+Open http://localhost:5173. Build with `npm run build`; the `dist` directory can be served by any static host. Live site: https://xennforall.ryaze.my.id/ . Ryaze deploys the main branch from GitHub.
 
 ## Tools
 
@@ -26,13 +26,14 @@ Files stay on the visitor's device. Google Fonts and the background-removal mode
 
 ## Open-source dependencies
 
-Background removal uses @imgly/background-removal under AGPL-3.0. Its full license is in THIRD_PARTY_LICENSE_AGPL.md; upstream source: https://github.com/imgly/background-removal-js. Before public distribution, provide the complete corresponding application source to visitors under compatible terms and retain all dependency notices. React, Vite, Lucide, and pdf-lib have their own license notices in their packages.
+Background removal uses @imgly/background-removal under AGPL-3.0. Its full license is in THIRD_PARTY_LICENSE_AGPL.md; upstream source: https://github.com/imgly/background-removal-js. Before public distribution, provide the complete corresponding application source to visitors under compatible terms and retain all dependency notices. PDF.js (pdfjs-dist) is licensed under Apache-2.0. React, Vite, Lucide, PDF.js, and pdf-lib retain their license notices in their packages.
 
 `npm audit` reports a high-severity advisory in the background-removal package's Zod 3 dependency. npm offers only a downgrade of the background-removal library, not a compatible patched release. No untrusted schema is used by this app; do not force a major Zod override without checking library compatibility. Review upstream updates before production deployment.
 
 ## Verification
 
-TypeScript checking and production build pass. Browser layout, category filtering, search, and tool dialogs are checked locally. Full AI inference needs a model download and is not verified in this environment.
+TypeScript checking and production build pass. Browser layout, category filtering, search, and tool dialogs are checked locally. All eight tools have upload previews and processing animations. Image tools provide before/after comparison, dimensions, and file sizes. PDF tools render browsable source and result pages with PDF.js; image-to-PDF displays the input page order. Browser checks cover generated output counts, PDF rotation, resized dimensions, conversion, compression, stale-result reset, and a complete background-removal inference.
 
 ## Application license and source
 This application is released under AGPL-3.0. Complete source: https://github.com/i0zfnr/xennforall . See LICENSE.md.
+
