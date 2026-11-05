@@ -21,6 +21,9 @@ Open http://localhost:5173. Build with `npm run build`; the `dist` directory can
 - Convert images between PNG / JPG / WebP
 - Resize images with preserved aspect ratio
 - AI background removal using IMG.LY, downloaded only when needed
+- PDF to PNG/JPG, one page or all pages in a ZIP
+- Organize PDF pages with thumbnails, reordering, rotation, and removal
+- Crop images visually with freeform and aspect-ratio presets
 
 Files stay on the visitor's device. Google Fonts and the background-removal model are external downloads. AI requires an internet connection on first use and may be slow on low-powered devices. Encrypted PDFs are not supported. File selection is capped at 100 MB per file; actual limits depend on device memory. Image compression is lossy and does not guarantee a smaller result for every source.
 
