@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import {
   ArrowDownToLine,
   ArrowRight,
+  Camera,
   Check,
   ChevronDown,
   Cpu,
@@ -16,8 +17,10 @@ import {
   Menu,
   Merge,
   Moon,
+  PenTool,
   Plus,
   RotateCw,
+  Scan,
   Scissors,
   Search,
   ShieldCheck,
@@ -38,6 +41,9 @@ const BatchImages = lazy(() => import('./BatchImages'));
 const StatusHdTool = lazy(() => import('./StatusHdTool'));
 const TikTokTool = lazy(() => import('./TikTokTool'));
 const LivePhotoTool = lazy(() => import('./LivePhotoTool'));
+const PassportPhotoTool = lazy(() => import('./PassportPhotoTool'));
+const SignPdfTool = lazy(() => import('./SignPdfTool'));
+const ScanDocTool = lazy(() => import('./ScanDocTool'));
 
 type Tool = {
   id: string;
@@ -66,7 +72,10 @@ const tools: Tool[] = [
   { id: 'resize', name: 'Resize image', description: 'The perfect fit, wherever your image is going.', category: 'Image tools', icon: Maximize, color: 'green', formats: 'JPG, PNG, WebP' },
   { id: 'status_hd', name: 'WhatsApp Status HD', description: 'Prevent blurry status videos and photos with calibrated bitrate, 9:16 framing, and 30s clips.', category: 'Image tools', icon: Smartphone, color: 'green', tag: 'HOT', formats: 'MP4, MOV, JPG, PNG' },
   { id: 'tiktok', name: 'TikTok Saver', description: 'Download TikTok videos without watermark in HD, or extract audio MP3.', category: 'Image tools', icon: Video, color: 'rose', tag: 'HOT', formats: 'Link, MP4, MP3' },
-  { id: 'livephoto', name: 'Video to Live Photo', description: 'Turn any video into an iPhone Live Photo, 9:16 motion wallpaper, or crisp cover frame.', category: 'Image tools', icon: Sparkles, color: 'violet', tag: 'NEW', formats: 'MP4, MOV, WebM' }
+  { id: 'livephoto', name: 'Video to Live Photo', description: 'Turn any video into an iPhone Live Photo, 9:16 motion wallpaper, or crisp cover frame.', category: 'Image tools', icon: Sparkles, color: 'violet', tag: 'NEW', formats: 'MP4, MOV, WebM' },
+  { id: 'passport', name: 'Passport & IC Photo', description: 'Create official passport, IC, and visa photos with custom background and printable 4×6 sheet.', category: 'Image tools', icon: Camera, color: 'amber', tag: 'HOT', formats: 'JPG, PNG, WebP' },
+  { id: 'signpdf', name: 'Sign & Watermark PDF', description: 'Sign agreements with digital signatures or stamp protective anti-fraud watermarks onto IC and document copies.', category: 'PDF tools', icon: PenTool, color: 'teal', tag: 'POPULAR', formats: 'PDF' },
+  { id: 'scandoc', name: 'Scan & Clean Document', description: 'Straighten angled paper photos, remove yellow shadows, and generate clean PDF scans.', category: 'Image tools', icon: Scan, color: 'violet', tag: 'NEW', formats: 'JPG, PNG, PDF' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -318,6 +327,9 @@ function App() {
                   <div className="hero-actions-grid">
                     {isHeroPdf ? (
                       <>
+                        <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'signpdf')!, [heroFile])}>
+                          <PenTool size={16} /> Sign & Watermark
+                        </button>
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'merge')!, [heroFile])}>
                           <Merge size={16} /> Merge PDF
                         </button>
@@ -345,6 +357,12 @@ function App() {
                       </>
                     ) : (
                       <>
+                        <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'passport')!, [heroFile])}>
+                          <Camera size={16} /> Passport & IC Photo
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'scandoc')!, [heroFile])}>
+                          <Scan size={16} /> Scan Document
+                        </button>
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'status_hd')!, [heroFile])}>
                           <Smartphone size={16} /> Status HD (9:16)
                         </button>
@@ -359,9 +377,6 @@ function App() {
                         </button>
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'convert')!, [heroFile])}>
                           <Image size={16} /> Convert format
-                        </button>
-                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'resize')!, [heroFile])}>
-                          <Maximize size={16} /> Resize image
                         </button>
                       </>
                     )}
@@ -397,6 +412,7 @@ function App() {
                     <Files size={13} /> {t("PDF Suite")}:
                   </span>
                   <div className="suite-chips">
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'signpdf')!)}>Sign</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'merge')!)}>Merge</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'split')!)}>Split</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'organize')!)}>Organize</button>
@@ -408,11 +424,11 @@ function App() {
                     <Image size={13} /> {t("Image Studio")}:
                   </span>
                   <div className="suite-chips">
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'passport')!)}>Passport</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'scandoc')!)}>Scan</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'tiktok')!)}>TikTok</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'status_hd')!)}>Status HD</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'livephoto')!)}>Live Photo</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'background')!)}>Cutout</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'compress')!)}>Compress</button>
                   </div>
                 </div>
               </div>
@@ -702,6 +718,60 @@ function App() {
             }
           >
             <LivePhotoTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'passport' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <PassportPhotoTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'signpdf' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <SignPdfTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'scandoc' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <ScanDocTool
               initialFiles={initialFiles}
               close={() => {
                 setActive(null);
