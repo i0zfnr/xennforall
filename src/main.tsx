@@ -7,6 +7,7 @@ import {
   Camera,
   Check,
   ChevronDown,
+  Columns,
   Cpu,
   EyeOff,
   FileImage,
@@ -14,14 +15,17 @@ import {
   Film,
   Image,
   Layers,
+  Lock,
   LockKeyhole,
   Maximize,
   Menu,
   Merge,
   Mic,
+  Monitor,
   Moon,
   PenTool,
   Plus,
+  Printer,
   QrCode,
   RotateCw,
   Scan,
@@ -59,6 +63,11 @@ const FaceBlurTool = lazy(() => import('./FaceBlurTool'));
 const QrStudioTool = lazy(() => import('./QrStudioTool'));
 const AudioRecorderTool = lazy(() => import('./AudioRecorderTool'));
 const VideoToGifTool = lazy(() => import('./VideoToGifTool'));
+const ScreenRecordTool = lazy(() => import('./ScreenRecordTool'));
+const AudioCutterTool = lazy(() => import('./AudioCutterTool'));
+const GridSplitTool = lazy(() => import('./GridSplitTool'));
+const EncryptTool = lazy(() => import('./EncryptTool'));
+const PdfGrayscaleTool = lazy(() => import('./PdfGrayscaleTool'));
 
 type Tool = {
   id: string;
@@ -98,7 +107,12 @@ const tools: Tool[] = [
   { id: 'faceblur', name: 'Face & Plate Blur', description: 'Pixelate or blur human faces, vehicle plates, and confidential details on photos.', category: 'Image tools', icon: EyeOff, color: 'rose', tag: 'PRIVACY', formats: 'JPG, PNG, WebP' },
   { id: 'qrstudio', name: 'Smart QR & Barcode Studio', description: 'Generate styled QR codes for Wi-Fi, WhatsApp, links, or scan barcodes via camera.', category: 'Image tools', icon: QrCode, color: 'coral', tag: 'NEW', formats: 'PNG, SVG, Camera' },
   { id: 'audiorecorder', name: 'Voice Memo & Audio Recorder', description: 'Record clean voice memos and speech with live acoustic rumble noise filtering.', category: 'Image tools', icon: Mic, color: 'teal', tag: 'NEW', formats: 'Mic, WAV' },
-  { id: 'videotogif', name: 'Video to Animated GIF', description: 'Convert video clips into animated GIFs and meme stickers with captions.', category: 'Image tools', icon: Film, color: 'orange', tag: 'POPULAR', formats: 'MP4, MOV, WebM' }
+  { id: 'videotogif', name: 'Video to Animated GIF', description: 'Convert video clips into animated GIFs and meme stickers with captions.', category: 'Image tools', icon: Film, color: 'orange', tag: 'POPULAR', formats: 'MP4, MOV, WebM' },
+  { id: 'screenrecord', name: 'Screen & Webcam Recorder', description: 'Record full screen, windows, and tabs with a circular face-cam and microphone narration.', category: 'Image tools', icon: Monitor, color: 'blue', tag: 'HOT', formats: 'Screen, MP4' },
+  { id: 'audiocutter', name: 'Audio Trimmer & Ringtone', description: 'Cut custom phone ringtones, alarm tones, and audio clips with interactive waveform scrubbing.', category: 'Image tools', icon: Scissors, color: 'coral', tag: 'NEW', formats: 'MP3, WAV, M4A' },
+  { id: 'gridsplit', name: 'Carousel & Grid Splitter', description: 'Slice panoramic photos into seamless swipeable Instagram carousel slides or 3x3 grids.', category: 'Image tools', icon: Columns, color: 'violet', tag: 'NEW', formats: 'JPG, PNG, WebP' },
+  { id: 'encrypt', name: 'Encrypted File Vault', description: 'Lock any document, photo, or archive with military-grade 256-bit password encryption.', category: 'PDF tools', icon: Lock, color: 'green', tag: 'SECURITY', formats: 'Any file, .xenn' },
+  { id: 'pdfgrayscale', name: 'PDF Ink Saver & Grayscale', description: 'Convert color PDFs into ink-saving black and white or grayscale to save printer cartridge ink.', category: 'PDF tools', icon: Printer, color: 'teal', tag: 'NEW', formats: 'PDF' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -371,6 +385,12 @@ function App() {
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'pdfimage')!, [heroFile])}>
                           <FileImage size={16} /> PDF to image
                         </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'pdfgrayscale')!, [heroFile])}>
+                          <Printer size={16} /> Ink Saver PDF
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'encrypt')!, [heroFile])}>
+                          <Lock size={16} /> Encrypt Vault
+                        </button>
                       </>
                     ) : isHeroVideo ? (
                       <>
@@ -415,6 +435,12 @@ function App() {
                         </button>
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'convert')!, [heroFile])}>
                           <Image size={16} /> Convert format
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'gridsplit')!, [heroFile])}>
+                          <Columns size={16} /> Carousel Splitter
+                        </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'encrypt')!, [heroFile])}>
+                          <Lock size={16} /> Encrypt Vault
                         </button>
                       </>
                     )}
@@ -477,6 +503,9 @@ function App() {
                     <button onClick={() => setActive(tools.find((x) => x.id === 'cinematic')!)}>Cinematic</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'faceblur')!)}>Face Blur</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'qrstudio')!)}>QR Studio</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'screenrecord')!)}>Screen Rec</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'audiocutter')!)}>Ringtone</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'encrypt')!)}>Vault</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'audiorecorder')!)}>Voice Memo</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'videotogif')!)}>GIF Maker</button>
                   </div>
@@ -967,6 +996,99 @@ function App() {
             }
           >
             <VideoToGifTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'screenrecord' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <ScreenRecordTool
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+              onSendToStatusHd={(file) => {
+                setActive(tools.find((x) => x.id === 'status_hd')!);
+                setInitialFiles([file]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'audiocutter' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <AudioCutterTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'gridsplit' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <GridSplitTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'encrypt' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <EncryptTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'pdfgrayscale' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <PdfGrayscaleTool
               initialFiles={initialFiles}
               close={() => {
                 setActive(null);

@@ -4853,3 +4853,394 @@ footer span {
 .gif-badge-info svg {
   color: #22c55e;
 }
+
+/* Screen & Webcam Studio Recorder Styles */
+.screenrecord-workspace {
+  max-width: 1200px;
+}
+
+.screenrecord-stage-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #020617;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.screen-idle-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  padding: 24px;
+  text-align: center;
+}
+
+.screen-idle-prompt h3 {
+  font-size: 18px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.screen-idle-prompt p {
+  font-size: 13px;
+  max-width: 440px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.live-composite-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.screen-composite-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.screen-recording-hud {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 9999px;
+  color: #ffffff;
+  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Audio Cutter & Ringtone Slicer Styles */
+.audiocutter-workspace {
+  max-width: 1100px;
+}
+
+.audiocutter-stage-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+  width: 100%;
+}
+
+.audiocutter-hero-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.waveform-box {
+  width: 100%;
+  height: 140px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="dark"] .waveform-box {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.waveform-canvas-element {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.audiocutter-playback-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 12px 18px;
+}
+
+.trim-range-summary {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trim-range-summary strong {
+  font-size: 15px;
+  color: var(--text-main);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.trim-range-summary small {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.trimmed-success-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 12px;
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.trimmed-success-card svg {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+/* Instagram Carousel Splitter Styles */
+.gridsplit-workspace {
+  max-width: 1150px;
+}
+
+.gridsplit-stage-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+  width: 100%;
+}
+
+.slices-preview-container {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+
+.slices-preview-container.profile_grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.slice-card-item {
+  position: relative;
+  flex: 0 0 180px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-card);
+}
+
+.slices-preview-container.profile_grid .slice-card-item {
+  flex: none;
+  aspect-ratio: 1 / 1;
+}
+
+.slice-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slice-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.slice-dl-icon {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.gridsplit-action-bar {
+  display: flex;
+  justify-content: center;
+}
+
+/* Encrypted File Vault Styles */
+.encrypt-workspace {
+  max-width: 1050px;
+}
+
+.encrypt-file-selected-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.file-hero-badge {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-hero-meta {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.file-hero-meta strong {
+  font-size: 16px;
+  color: var(--text-main);
+}
+
+.file-hero-meta span {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.security-notice-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  max-width: 480px;
+  font-size: 13px;
+}
+
+.security-notice-card svg {
+  color: #10b981;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.security-notice-card strong {
+  display: block;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.security-notice-card p {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.password-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrap .qr-input {
+  padding-right: 42px;
+}
+
+.btn-toggle-eye {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.encrypt-result-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.result-shield-badge {
+  color: #10b981;
+}
+
+.encrypt-result-box h3 {
+  font-size: 20px;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.download-btn-green.large {
+  padding: 14px 32px;
+  font-size: 15px;
+}
+
+/* PDF Ink Saver & Grayscale Styles */
+.pdfgrayscale-workspace {
+  max-width: 1100px;
+}
+
+.pdfgrayscale-stage-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  width: 100%;
+}
+
+.pdf-preview-box {
+  max-width: 100%;
+  box-shadow: var(--shadow-md);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.pdf-preview-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
