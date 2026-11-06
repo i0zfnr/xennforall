@@ -22,8 +22,10 @@ import {
   Search,
   ShieldCheck,
   Smartphone,
+  Sparkles,
   Sun,
   Upload,
+  Video,
   X,
   Zap
 } from 'lucide-react';
@@ -32,7 +34,10 @@ import './style.css';
 import brandIcon from './assets/icon.png';
 import { FilePreview } from './FilePreview';
 const NewTools = lazy(() => import('./NewTools'));
+const BatchImages = lazy(() => import('./BatchImages'));
 const StatusHdTool = lazy(() => import('./StatusHdTool'));
+const TikTokTool = lazy(() => import('./TikTokTool'));
+const LivePhotoTool = lazy(() => import('./LivePhotoTool'));
 
 type Tool = {
   id: string;
@@ -49,6 +54,8 @@ const tools: Tool[] = [
   { id: 'merge', name: 'Merge PDF', description: 'Bring your PDFs together. One file, perfectly in order.', category: 'PDF tools', icon: Merge, color: 'coral', tag: 'POPULAR', formats: 'PDF' },
   { id: 'split', name: 'Split PDF', description: 'Keep the pages you need. Leave the rest behind.', category: 'PDF tools', icon: Scissors, color: 'orange', formats: 'PDF' },
   { id: 'background', name: 'Remove background', description: 'Make your subject the star. Clean cutouts in a click.', category: 'Image tools', icon: Scissors, color: 'violet', tag: 'POPULAR', formats: 'PNG, JPG, WebP' },
+  { id: 'batch', name: 'Batch images', description: 'Compress, resize, or convert multiple images at once.', category: 'Image tools', icon: Files, color: 'blue', tag: 'NEW', formats: 'JPG, PNG, WebP' },
+  { id: 'number', name: 'Add page numbers', description: 'Add numbered pages to your PDF.', category: 'PDF tools', icon: FileImage, color: 'coral', tag: 'NEW', formats: 'PDF' },
   { id: 'compress', name: 'Compress image', description: 'Smaller files. Same big impression.', category: 'Image tools', icon: ArrowDownToLine, color: 'blue', formats: 'JPG, PNG, WebP' },
   { id: 'imagepdf', name: 'Image to PDF', description: 'Turn your JPGs and PNGs into a tidy PDF.', category: 'PDF tools', icon: FileImage, color: 'amber', formats: 'JPG, PNG, WebP' },
   { id: 'convert', name: 'Convert image', description: 'A fresh format. Convert to JPG, PNG, or WebP.', category: 'Image tools', icon: Image, color: 'teal', formats: 'PNG, JPG, WebP' },
@@ -57,7 +64,9 @@ const tools: Tool[] = [
   { id: 'organize', name: 'Organize PDF', description: 'Reorder, rotate, and remove pages visually.', category: 'PDF tools', icon: Layers, color: 'rose', tag: 'NEW', formats: 'PDF' },
   { id: 'crop', name: 'Crop image', description: 'Find the perfect frame for any image.', category: 'Image tools', icon: Scissors, color: 'teal', tag: 'NEW', formats: 'PNG, JPG, WebP' },
   { id: 'resize', name: 'Resize image', description: 'The perfect fit, wherever your image is going.', category: 'Image tools', icon: Maximize, color: 'green', formats: 'JPG, PNG, WebP' },
-  { id: 'status_hd', name: 'WhatsApp Status HD', description: 'Prevent blurry status videos and photos with calibrated bitrate, 9:16 framing, and 30s clips.', category: 'Image tools', icon: Smartphone, color: 'green', tag: 'HOT', formats: 'MP4, MOV, JPG, PNG' }
+  { id: 'status_hd', name: 'WhatsApp Status HD', description: 'Prevent blurry status videos and photos with calibrated bitrate, 9:16 framing, and 30s clips.', category: 'Image tools', icon: Smartphone, color: 'green', tag: 'HOT', formats: 'MP4, MOV, JPG, PNG' },
+  { id: 'tiktok', name: 'TikTok Saver', description: 'Download TikTok videos without watermark in HD, or extract audio MP3.', category: 'Image tools', icon: Video, color: 'rose', tag: 'HOT', formats: 'Link, MP4, MP3' },
+  { id: 'livephoto', name: 'Video to Live Photo', description: 'Turn any video into an iPhone Live Photo, 9:16 motion wallpaper, or crisp cover frame.', category: 'Image tools', icon: Sparkles, color: 'violet', tag: 'NEW', formats: 'MP4, MOV, WebM' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -330,6 +339,9 @@ function App() {
                         <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'status_hd')!, [heroFile])}>
                           <Smartphone size={16} /> WhatsApp Status HD
                         </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'livephoto')!, [heroFile])}>
+                          <Sparkles size={16} /> Video to Live Photo
+                        </button>
                       </>
                     ) : (
                       <>
@@ -396,11 +408,11 @@ function App() {
                     <Image size={13} /> {t("Image Studio")}:
                   </span>
                   <div className="suite-chips">
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'tiktok')!)}>TikTok</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'status_hd')!)}>Status HD</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'livephoto')!)}>Live Photo</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'background')!)}>Cutout</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'compress')!)}>Compress</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'crop')!)}>Crop</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'convert')!)}>Convert</button>
                   </div>
                 </div>
               </div>
@@ -618,7 +630,7 @@ function App() {
       </footer>
 
       {active &&
-        (['pdfimage', 'organize', 'crop'].includes(active.id) ? (
+        (active.id === 'batch' ? <Suspense fallback={<div role="status">{t('Loading your tool…')}</div>}><BatchImages close={() => setActive(null)} /></Suspense> : ['pdfimage', 'organize', 'crop', 'number'].includes(active.id) ? (
           <Suspense
             fallback={
               <div className="modal-backdrop">
@@ -629,7 +641,7 @@ function App() {
             }
           >
             <NewTools
-              kind={active.id as 'pdfimage' | 'organize' | 'crop'}
+              kind={active.id as 'pdfimage' | 'organize' | 'crop' | 'number'}
               close={() => {
                 setActive(null);
                 setInitialFiles([]);
@@ -647,6 +659,49 @@ function App() {
             }
           >
             <StatusHdTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'tiktok' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <TikTokTool
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+              onSendToStatusHd={(file) => {
+                setActive(tools.find((x) => x.id === 'status_hd')!);
+                setInitialFiles([file]);
+              }}
+              onSendToLivePhoto={(file) => {
+                setActive(tools.find((x) => x.id === 'livephoto')!);
+                setInitialFiles([file]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'livephoto' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <LivePhotoTool
               initialFiles={initialFiles}
               close={() => {
                 setActive(null);
@@ -724,12 +779,13 @@ function ToolDialog({
     tool.id === 'rotate' ? '90' : tool.id === 'resize' ? '1200' : tool.id === 'split' ? '1' : ''
   );
   const [format, setFormat] = useState('image/png');
+  const [quality, setQuality] = useState(72);
   const [drag, setDrag] = useState(false);
 
   useEffect(() => {
     setResult(null);
     setStatus('');
-  }, [value, format]);
+  }, [value, format, quality]);
 
   const workspace = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -867,7 +923,7 @@ function ToolDialog({
         }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         blob = await new Promise<Blob>((resolve, reject) =>
-          canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('This image could not be converted.'))), mime, tool.id === 'compress' ? 0.72 : 0.92)
+          canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('This image could not be converted.'))), mime, tool.id === 'compress' ? quality / 100 : 0.92)
         );
         name = `xenn-${tool.id}.${blob.type === 'image/jpeg' ? 'jpg' : blob.type === 'image/webp' ? 'webp' : 'png'}`;
       }
@@ -1174,6 +1230,8 @@ function ToolDialog({
                   <span>{t("The first run downloads the AI model. It can take a few minutes. After that, you’re ready for more.")}</span>
                 </p>
               )}
+              {tool.id === 'compress' && <label className="field">{t('Image quality')}: {quality}%<input type="range" min="10" max="100" value={quality} disabled={busy} onChange={(e) => setQuality(Number(e.target.value))} /><small>{t('Lower quality usually means a smaller file.')}</small></label>}
+              {tool.id === 'compress' && result && <p className="workspace-tip">{t('Original')}: {fileSize(files[0].size)} · {t('Result')}: {fileSize(result.blob.size)}{result.blob.size >= files[0].size && <> · {t('The result is not smaller. Try a lower quality.')}</>}</p>}
               {tool.id === 'compress' && (
                 <p className="workspace-tip">
                   <Image size={17} />
