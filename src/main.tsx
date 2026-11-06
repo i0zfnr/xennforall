@@ -8,6 +8,7 @@ import {
   Check,
   ChevronDown,
   Cpu,
+  EyeOff,
   FileImage,
   Files,
   Image,
@@ -23,12 +24,15 @@ import {
   Scan,
   Scissors,
   Search,
+  ShieldAlert,
   ShieldCheck,
   Smartphone,
   Sparkles,
   Sun,
   Upload,
   Video,
+  Volume2,
+  VolumeX,
   X,
   Zap
 } from 'lucide-react';
@@ -44,6 +48,9 @@ const LivePhotoTool = lazy(() => import('./LivePhotoTool'));
 const PassportPhotoTool = lazy(() => import('./PassportPhotoTool'));
 const SignPdfTool = lazy(() => import('./SignPdfTool'));
 const ScanDocTool = lazy(() => import('./ScanDocTool'));
+const RedactPdfTool = lazy(() => import('./RedactPdfTool'));
+const AudioExtractTool = lazy(() => import('./AudioExtractTool'));
+const ExifCleanerTool = lazy(() => import('./ExifCleanerTool'));
 
 type Tool = {
   id: string;
@@ -75,7 +82,10 @@ const tools: Tool[] = [
   { id: 'livephoto', name: 'Video to Live Photo', description: 'Turn any video into an iPhone Live Photo, 9:16 motion wallpaper, or crisp cover frame.', category: 'Image tools', icon: Sparkles, color: 'violet', tag: 'NEW', formats: 'MP4, MOV, WebM' },
   { id: 'passport', name: 'Passport & IC Photo', description: 'Create official passport, IC, and visa photos with custom background and printable 4×6 sheet.', category: 'Image tools', icon: Camera, color: 'amber', tag: 'HOT', formats: 'JPG, PNG, WebP' },
   { id: 'signpdf', name: 'Sign & Watermark PDF', description: 'Sign agreements with digital signatures or stamp protective anti-fraud watermarks onto IC and document copies.', category: 'PDF tools', icon: PenTool, color: 'teal', tag: 'POPULAR', formats: 'PDF' },
-  { id: 'scandoc', name: 'Scan & Clean Document', description: 'Straighten angled paper photos, remove yellow shadows, and generate clean PDF scans.', category: 'Image tools', icon: Scan, color: 'violet', tag: 'NEW', formats: 'JPG, PNG, PDF' }
+  { id: 'scandoc', name: 'Scan & Clean Document', description: 'Straighten angled paper photos, remove yellow shadows, and generate clean PDF scans.', category: 'Image tools', icon: Scan, color: 'violet', tag: 'NEW', formats: 'JPG, PNG, PDF' },
+  { id: 'redact', name: 'PDF Redactor', description: 'Permanently blackout confidential text, IC numbers, and private data.', category: 'PDF tools', icon: EyeOff, color: 'rose', tag: 'SECURITY', formats: 'PDF' },
+  { id: 'audioextract', name: 'Video to Audio & Mute', description: 'Extract lossless master audio (WAV) from video clips or remove audio to export silent video.', category: 'Image tools', icon: Volume2, color: 'violet', tag: 'NEW', formats: 'MP4, MOV, WebM' },
+  { id: 'exifcleaner', name: 'EXIF & Geotag Eraser', description: 'Inspect and wipe hidden GPS coordinates, device models, and timestamps from photos.', category: 'Image tools', icon: ShieldAlert, color: 'amber', tag: 'HOT', formats: 'JPG, PNG, WebP' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -330,6 +340,9 @@ function App() {
                         <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'signpdf')!, [heroFile])}>
                           <PenTool size={16} /> Sign & Watermark
                         </button>
+                        <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'redact')!, [heroFile])}>
+                          <EyeOff size={16} /> Redact PDF
+                        </button>
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'merge')!, [heroFile])}>
                           <Merge size={16} /> Merge PDF
                         </button>
@@ -354,9 +367,15 @@ function App() {
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'livephoto')!, [heroFile])}>
                           <Sparkles size={16} /> Video to Live Photo
                         </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'audioextract')!, [heroFile])}>
+                          <Volume2 size={16} /> Extract Audio & Mute
+                        </button>
                       </>
                     ) : (
                       <>
+                        <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'exifcleaner')!, [heroFile])}>
+                          <ShieldAlert size={16} /> Erase GPS & EXIF
+                        </button>
                         <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'passport')!, [heroFile])}>
                           <Camera size={16} /> Passport & IC Photo
                         </button>
@@ -772,6 +791,60 @@ function App() {
             }
           >
             <ScanDocTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'redact' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <RedactPdfTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'audioextract' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <AudioExtractTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'exifcleaner' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <ExifCleanerTool
               initialFiles={initialFiles}
               close={() => {
                 setActive(null);
