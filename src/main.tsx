@@ -11,15 +11,18 @@ import {
   EyeOff,
   FileImage,
   Files,
+  Film,
   Image,
   Layers,
   LockKeyhole,
   Maximize,
   Menu,
   Merge,
+  Mic,
   Moon,
   PenTool,
   Plus,
+  QrCode,
   RotateCw,
   Scan,
   Scissors,
@@ -51,6 +54,11 @@ const ScanDocTool = lazy(() => import('./ScanDocTool'));
 const RedactPdfTool = lazy(() => import('./RedactPdfTool'));
 const AudioExtractTool = lazy(() => import('./AudioExtractTool'));
 const ExifCleanerTool = lazy(() => import('./ExifCleanerTool'));
+const CinematicStudioTool = lazy(() => import('./CinematicStudioTool'));
+const FaceBlurTool = lazy(() => import('./FaceBlurTool'));
+const QrStudioTool = lazy(() => import('./QrStudioTool'));
+const AudioRecorderTool = lazy(() => import('./AudioRecorderTool'));
+const VideoToGifTool = lazy(() => import('./VideoToGifTool'));
 
 type Tool = {
   id: string;
@@ -85,7 +93,12 @@ const tools: Tool[] = [
   { id: 'scandoc', name: 'Scan & Clean Document', description: 'Straighten angled paper photos, remove yellow shadows, and generate clean PDF scans.', category: 'Image tools', icon: Scan, color: 'violet', tag: 'NEW', formats: 'JPG, PNG, PDF' },
   { id: 'redact', name: 'PDF Redactor', description: 'Permanently blackout confidential text, IC numbers, and private data.', category: 'PDF tools', icon: EyeOff, color: 'rose', tag: 'SECURITY', formats: 'PDF' },
   { id: 'audioextract', name: 'Video to Audio & Mute', description: 'Extract lossless master audio (WAV) from video clips or remove audio to export silent video.', category: 'Image tools', icon: Volume2, color: 'violet', tag: 'NEW', formats: 'MP4, MOV, WebM' },
-  { id: 'exifcleaner', name: 'EXIF & Geotag Eraser', description: 'Inspect and wipe hidden GPS coordinates, device models, and timestamps from photos.', category: 'Image tools', icon: ShieldAlert, color: 'amber', tag: 'HOT', formats: 'JPG, PNG, WebP' }
+  { id: 'exifcleaner', name: 'EXIF & Geotag Eraser', description: 'Inspect and wipe hidden GPS coordinates, device models, and timestamps from photos.', category: 'Image tools', icon: ShieldAlert, color: 'amber', tag: 'HOT', formats: 'JPG, PNG, WebP' },
+  { id: 'cinematic', name: 'Cinematic Video Studio', description: 'Record video presentations with cinematic background blur and a floating teleprompter.', category: 'Image tools', icon: Camera, color: 'violet', tag: 'HOT', formats: 'Camera, MP4' },
+  { id: 'faceblur', name: 'Face & Plate Blur', description: 'Pixelate or blur human faces, vehicle plates, and confidential details on photos.', category: 'Image tools', icon: EyeOff, color: 'rose', tag: 'PRIVACY', formats: 'JPG, PNG, WebP' },
+  { id: 'qrstudio', name: 'Smart QR & Barcode Studio', description: 'Generate styled QR codes for Wi-Fi, WhatsApp, links, or scan barcodes via camera.', category: 'Image tools', icon: QrCode, color: 'coral', tag: 'NEW', formats: 'PNG, SVG, Camera' },
+  { id: 'audiorecorder', name: 'Voice Memo & Audio Recorder', description: 'Record clean voice memos and speech with live acoustic rumble noise filtering.', category: 'Image tools', icon: Mic, color: 'teal', tag: 'NEW', formats: 'Mic, WAV' },
+  { id: 'videotogif', name: 'Video to Animated GIF', description: 'Convert video clips into animated GIFs and meme stickers with captions.', category: 'Image tools', icon: Film, color: 'orange', tag: 'POPULAR', formats: 'MP4, MOV, WebM' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -364,6 +377,9 @@ function App() {
                         <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'status_hd')!, [heroFile])}>
                           <Smartphone size={16} /> WhatsApp Status HD
                         </button>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'videotogif')!, [heroFile])}>
+                          <Film size={16} /> Make Animated GIF
+                        </button>
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'livephoto')!, [heroFile])}>
                           <Sparkles size={16} /> Video to Live Photo
                         </button>
@@ -373,10 +389,13 @@ function App() {
                       </>
                     ) : (
                       <>
+                        <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'faceblur')!, [heroFile])}>
+                          <EyeOff size={16} /> Blur Faces & Plates
+                        </button>
                         <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'exifcleaner')!, [heroFile])}>
                           <ShieldAlert size={16} /> Erase GPS & EXIF
                         </button>
-                        <button className="highlight" onClick={() => openToolWithFiles(tools.find((x) => x.id === 'passport')!, [heroFile])}>
+                        <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'passport')!, [heroFile])}>
                           <Camera size={16} /> Passport & IC Photo
                         </button>
                         <button onClick={() => openToolWithFiles(tools.find((x) => x.id === 'scandoc')!, [heroFile])}>
@@ -448,6 +467,18 @@ function App() {
                     <button onClick={() => setActive(tools.find((x) => x.id === 'tiktok')!)}>TikTok</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'status_hd')!)}>Status HD</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'livephoto')!)}>Live Photo</button>
+                  </div>
+                </div>
+                <div className="suite-group">
+                  <span className="suite-title">
+                    <Sparkles size={13} /> {t("Studio & AI")}:
+                  </span>
+                  <div className="suite-chips">
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'cinematic')!)}>Cinematic</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'faceblur')!)}>Face Blur</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'qrstudio')!)}>QR Studio</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'audiorecorder')!)}>Voice Memo</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'videotogif')!)}>GIF Maker</button>
                   </div>
                 </div>
               </div>
@@ -845,6 +876,97 @@ function App() {
             }
           >
             <ExifCleanerTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'cinematic' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <CinematicStudioTool
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+              onSendToStatusHd={(file) => {
+                setActive(tools.find((x) => x.id === 'status_hd')!);
+                setInitialFiles([file]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'faceblur' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <FaceBlurTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'qrstudio' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <QrStudioTool
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'audiorecorder' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <AudioRecorderTool
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'videotogif' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <VideoToGifTool
               initialFiles={initialFiles}
               close={() => {
                 setActive(null);
