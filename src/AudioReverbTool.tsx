@@ -2,20 +2,13 @@ import { t } from './i18n';
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowDownToLine,
-  Check,
-  Disc,
-  Download,
-  Eye,
-  FileAudio,
-  Layers,
+  ArrowRight,
   Pause,
   Play,
   RotateCcw,
-  Sliders,
-  Sparkles,
+  ShieldCheck,
   Upload,
   Volume2,
-  VolumeX,
   X
 } from 'lucide-react';
 
@@ -51,7 +44,7 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
   const [damping, setDamping] = useState<number>(3600);
   const [wetMix, setWetMix] = useState<number>(0.45);
 
-  // Playback state
+  // Playback
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
@@ -75,7 +68,7 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
   const dialogRef = useRef<HTMLElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Modal accessibility
+  // Accessibility lock
   useEffect(() => {
     const prevActive = document.activeElement as HTMLElement | null;
     const prevOverflow = document.body.style.overflow;
@@ -99,14 +92,13 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     };
   }, []);
 
-  // Initial file loading
+  // Initial file
   useEffect(() => {
     if (initialFiles && initialFiles.length > 0) {
       loadAudioFile(initialFiles[0]);
     }
   }, []);
 
-  // Load and decode audio file
   async function loadAudioFile(f: File) {
     if (!f.type.startsWith('audio/') && !/\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(f.name)) {
       return;
@@ -132,7 +124,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     }
   }
 
-  // Generate synthetic algorithmic impulse response
   function generateImpulseResponse(
     ctx: BaseAudioContext,
     durationSeconds: number,
@@ -146,9 +137,7 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
 
     for (let i = 0; i < length; i++) {
       const n = length - i;
-      // Exponential decay envelope
       const env = Math.pow(n / length, decayFactor);
-      // Stereo dispersion white noise
       left[i] = (Math.random() * 2 - 1) * env;
       right[i] = (Math.random() * 2 - 1) * env;
     }
@@ -156,7 +145,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     return impulse;
   }
 
-  // Apply Preset
   function applyPreset(p: ReverbPreset) {
     setSelectedPreset(p.id);
     setDecay(p.decay);
@@ -164,12 +152,10 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     setWetMix(p.wet);
 
     if (isPlaying) {
-      // Re-create nodes on live graph
       setupLiveGraph(pauseOffsetRef.current);
     }
   }
 
-  // Setup Live Audio Graph
   function setupLiveGraph(offset = 0) {
     if (!audioBuffer) return;
     const ctx = audioCtxRef.current || new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -179,7 +165,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
       ctx.resume();
     }
 
-    // Stop current source
     if (sourceNodeRef.current) {
       try {
         sourceNodeRef.current.stop();
@@ -187,7 +172,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
       } catch (_) {}
     }
 
-    // Nodes
     const source = ctx.createBufferSource();
     source.buffer = audioBuffer;
 
@@ -199,14 +183,11 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
 
     filter.type = 'lowpass';
     filter.frequency.value = damping;
-
-    // Generate impulse
     convolver.buffer = generateImpulseResponse(ctx, decay, 2.5);
 
     dryGain.gain.value = 1 - wetMix;
     wetGain.gain.value = wetMix;
 
-    // Connections
     source.connect(dryGain);
     dryGain.connect(analyser);
 
@@ -239,12 +220,10 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     startVisualizer();
   }
 
-  // Toggle Play / Pause
   function togglePlay() {
     if (!audioBuffer) return;
 
     if (isPlaying) {
-      // Pause
       if (sourceNodeRef.current) {
         sourceNodeRef.current.stop();
         sourceNodeRef.current.disconnect();
@@ -254,7 +233,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
       }
       setIsPlaying(false);
     } else {
-      // Play
       if (pauseOffsetRef.current >= duration) {
         pauseOffsetRef.current = 0;
       }
@@ -274,7 +252,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     setCurrentTime(0);
   }
 
-  // Visualizer loop
   function startVisualizer() {
     function draw() {
       const canvas = canvasRef.current;
@@ -310,7 +287,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     animFrameRef.current = requestAnimationFrame(draw);
   }
 
-  // Seek bar scrub
   function handleSeek(newTime: number) {
     pauseOffsetRef.current = newTime;
     setCurrentTime(newTime);
@@ -319,7 +295,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     }
   }
 
-  // Offline rendering to WAV
   async function exportProcessedAudio() {
     if (!audioBuffer) return;
     stopPlayback();
@@ -374,11 +349,10 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     }
   }
 
-  // AudioBuffer to 16-bit PCM WAV Blob
   function audioBufferToWav(buffer: AudioBuffer): Blob {
     const numChannels = buffer.numberOfChannels;
     const sampleRate = buffer.sampleRate;
-    const format = 1; // PCM
+    const format = 1;
     const bitDepth = 16;
     const bytesPerSample = bitDepth / 8;
     const blockAlign = numChannels * bytesPerSample;
@@ -395,7 +369,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
       }
     }
 
-    // RIFF header
     writeString(0, 'RIFF');
     view.setUint32(4, 36 + dataLength, true);
     writeString(8, 'WAVE');
@@ -410,7 +383,6 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
     writeString(36, 'data');
     view.setUint32(40, dataLength, true);
 
-    // Write samples
     const channels = [];
     for (let c = 0; c < numChannels; c++) {
       channels.push(buffer.getChannelData(c));
@@ -436,82 +408,106 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="audio-reverb-title"
-      ref={dialogRef as any}
-      tabIndex={-1}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-md overflow-hidden animate-fade-in outline-none"
-    >
-      <div className="bg-surface border border-subtle rounded-2xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-subtle bg-surface/90">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <Volume2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 id="audio-reverb-title" className="text-lg font-bold text-main leading-tight">
-                {t('Acoustic Reverb & Spatial Audio')}
-              </h2>
-              <p className="text-xs text-muted">
-                {t('Convolver impulse acoustics for cathedral, concert hall, room, and ambient spaces')}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={close}
-            className="p-2 text-muted hover:text-main rounded-xl hover:bg-surface-hover transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-            aria-label={t('Close')}
-          >
-            <X className="w-5 h-5" />
+    <div className="modal-backdrop workspace-backdrop" onClick={close}>
+      <section
+        ref={dialogRef as any}
+        tabIndex={-1}
+        className="tool-workspace audioreverb-workspace"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="audioreverb-title"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && !isProcessing) {
+            e.stopPropagation();
+            close();
+          }
+        }}
+      >
+        {/* Topbar */}
+        <div className="workspace-topbar">
+          <button className="workspace-back" disabled={isProcessing} onClick={close}>
+            <ArrowRight size={15} />
+            {t('All tools')}
+          </button>
+          <span className="workspace-private">
+            <ShieldCheck size={14} />
+            {t('Private & Client-Side · 100% In-Browser')}
+          </span>
+          <button className="workspace-close" disabled={isProcessing} onClick={close} aria-label={t('Close tool')}>
+            <X size={19} />
           </button>
         </div>
 
-        {/* Workspace Body */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
-          {/* Main Player & Visualizer */}
-          <div className="lg:col-span-7 bg-black/20 p-5 flex flex-col items-center justify-center gap-5 overflow-y-auto">
+        {/* Heading */}
+        <div className="workspace-heading">
+          <span className="tool-icon emerald">
+            <Volume2 size={26} />
+          </span>
+          <div>
+            <div className="workspace-heading-tags">
+              <span className="workspace-category">
+                {t('Audio tools')} <span>/</span> {t('ACOUSTIC REVERB & SPATIAL AUDIO')}
+              </span>
+              <span className="hd-pill">CONVOLUTION REVERB</span>
+            </div>
+            <h2 id="audioreverb-title">{t('Acoustic Reverb & Spatial Audio')}</h2>
+            <p>
+              {t('Immerse audio in cathedral, concert hall, room, or cosmic space acoustics using impulse convolution.')}
+            </p>
+          </div>
+          <span className="workspace-free">
+            <span />
+            {t('Web Audio · Studio WAV')}
+          </span>
+        </div>
+
+        {/* Workspace Grid */}
+        <div className="workspace-grid">
+          {/* Main Visualizer & Transport */}
+          <div className="workspace-canvas">
+            <div className="canvas-heading">
+              <span>
+                <span className="canvas-dot" />
+                {audioBuffer ? t('SPATIAL ACOUSTIC STAGE') : t('AUDIO WORKBENCH')}
+              </span>
+              <span>{file ? file.name : t('Select audio file')}</span>
+            </div>
+
             {!audioBuffer ? (
-              <div
+              <button
+                className="workspace-empty"
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-subtle hover:border-primary/60 rounded-2xl p-8 max-w-md w-full text-center cursor-pointer transition-all hover:bg-surface/40 flex flex-col items-center justify-center gap-3"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (e.dataTransfer.files?.[0]) loadAudioFile(e.dataTransfer.files[0]);
+                }}
               >
-                <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                  <Upload className="w-7 h-7" />
+                <div className="empty-circle">
+                  <Volume2 size={34} />
                 </div>
-                <h3 className="font-semibold text-main text-base">{t('Select audio file')}</h3>
-                <p className="text-xs text-muted leading-relaxed">
-                  {t('Supports MP3, WAV, AAC, OGG, and FLAC for studio acoustic impulse rendering.')}
-                </p>
-                <button
-                  type="button"
-                  className="btn btn-primary mt-2 min-h-[44px] px-5 text-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                >
+                <h3>{t('Select audio file')}</h3>
+                <p>{t('Supports MP3, WAV, AAC, OGG, and FLAC for studio acoustic impulse rendering.')}</p>
+                <span className="btn-fake">
+                  <Upload size={16} />
                   {t('Choose Audio File')}
-                </button>
-              </div>
+                </span>
+              </button>
             ) : (
-              <div className="w-full max-w-lg flex flex-col items-center gap-5">
+              <div className="audioreverb-stage-wrap">
                 {/* Visualizer Canvas */}
-                <div className="w-full h-32 bg-surface border border-subtle rounded-2xl overflow-hidden relative shadow-sm flex items-end">
-                  <canvas ref={canvasRef} width={400} height={120} className="w-full h-full" />
+                <div className="reverb-visualizer-box">
+                  <canvas ref={canvasRef} width={420} height={140} className="reverb-canvas" />
                 </div>
 
                 {/* Track Info */}
-                <div className="text-center">
-                  <p className="text-sm font-bold text-main truncate max-w-xs">{file?.name}</p>
-                  <p className="text-xs text-muted mt-0.5">
-                    {formatTime(currentTime)} / {formatTime(duration)}
-                  </p>
+                <div className="reverb-track-meta">
+                  <strong className="truncate max-w-[260px]">{file?.name}</strong>
+                  <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
                 </div>
 
-                {/* Scrubber Range */}
+                {/* Scrubber */}
                 <input
                   type="range"
                   min="0"
@@ -519,153 +515,145 @@ export default function AudioReverbTool({ initialFiles = [], close }: AudioRever
                   step="0.1"
                   value={currentTime}
                   onChange={(e) => handleSeek(Number(e.target.value))}
-                  className="w-full accent-primary cursor-pointer"
+                  className="reverb-scrubber"
                 />
 
-                {/* Transport Controls */}
-                <div className="flex items-center gap-4">
+                {/* Transport Buttons */}
+                <div className="reverb-transport-row">
                   <button
                     type="button"
+                    className="reverb-reset-btn"
                     onClick={stopPlayback}
-                    className="p-3 rounded-full bg-surface-alt hover:bg-surface-hover text-muted hover:text-main min-h-[44px] min-w-[44px] flex items-center justify-center"
                     aria-label={t('Reset')}
                   >
-                    <RotateCcw className="w-5 h-5" />
+                    <RotateCcw size={16} />
                   </button>
 
                   <button
                     type="button"
+                    className="reverb-play-btn"
                     onClick={togglePlay}
-                    className="w-14 h-14 rounded-full bg-primary text-white shadow-lg hover:brightness-110 flex items-center justify-center min-h-[44px] min-w-[44px]"
                     aria-label={isPlaying ? t('Pause') : t('Play')}
                   >
-                    {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
+                    {isPlaying ? <Pause size={22} /> : <Play size={22} className="ml-0.5" />}
                   </button>
                 </div>
 
-                {statusMsg && (
-                  <p className="text-xs font-semibold text-primary animate-pulse">{statusMsg}</p>
-                )}
+                <div className="reverb-export-action">
+                  <button
+                    type="button"
+                    className="download-btn-green"
+                    disabled={isProcessing}
+                    onClick={exportProcessedAudio}
+                  >
+                    <ArrowDownToLine size={16} />
+                    {isProcessing ? t('Rendering Audio…') : t('Export Studio WAV')}
+                  </button>
+                </div>
+
+                {statusMsg && <div className="reverb-status-hint">{statusMsg}</div>}
               </div>
             )}
+          </div>
 
+          {/* Acoustics Controls */}
+          <div className="workspace-controls">
             <input
               ref={fileInputRef}
               type="file"
+              hidden
               accept="audio/*"
-              className="hidden"
               onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  loadAudioFile(e.target.files[0]);
-                }
+                if (e.target.files?.[0]) loadAudioFile(e.target.files[0]);
+                e.target.value = '';
               }}
             />
-          </div>
 
-          {/* Acoustics Controls Sidebar */}
-          <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-subtle p-5 overflow-y-auto flex flex-col gap-5 bg-surface">
-            <div>
-              <h3 className="text-sm font-bold text-main">{t('Acoustic Environments')}</h3>
-              <p className="text-xs text-muted">{t('Select a spatial impulse preset or fine-tune acoustics')}</p>
+            <div className="control-group">
+              <label>{t('Acoustic Environments')}</label>
+              <div className="reverb-presets-grid">
+                {PRESETS.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={`reverb-preset-chip ${selectedPreset === p.id ? 'active' : ''}`}
+                    onClick={() => applyPreset(p)}
+                  >
+                    <strong>{p.name}</strong>
+                    <small>{p.decay}s decay</small>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Presets Grid */}
-            <div className="grid grid-cols-2 gap-2">
-              {PRESETS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => applyPreset(p)}
-                  className={`py-2 px-3 rounded-xl border text-left transition-all min-h-[44px] flex flex-col justify-center ${
-                    selectedPreset === p.id
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-subtle bg-surface-alt/40 text-muted hover:bg-surface-hover hover:text-main'
-                  }`}
-                >
-                  <span className="text-xs font-bold leading-tight">{p.name}</span>
-                  <span className="text-[10px] opacity-70">{p.decay}s decay</span>
-                </button>
-              ))}
+            <div className="control-group">
+              <div className="slider-label-row">
+                <span>{t('Wet / Dry Mix')}</span>
+                <strong>{Math.round(wetMix * 100)}% Reverb</strong>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={wetMix}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setWetMix(val);
+                  if (wetGainRef.current) wetGainRef.current.gain.value = val;
+                  if (dryGainRef.current) dryGainRef.current.gain.value = 1 - val;
+                }}
+              />
             </div>
 
-            {/* Acoustic Sliders */}
-            <div className="border-t border-subtle pt-4 flex flex-col gap-4">
-              <label className="text-xs font-semibold text-main">
-                {t('Wet / Dry Mix')} ({Math.round(wetMix * 100)}% Reverb)
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={wetMix}
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    setWetMix(val);
-                    if (wetGainRef.current) wetGainRef.current.gain.value = val;
-                    if (dryGainRef.current) dryGainRef.current.gain.value = 1 - val;
-                  }}
-                  className="w-full accent-primary mt-1.5 cursor-pointer"
-                />
-              </label>
-
-              <label className="text-xs font-semibold text-main">
-                {t('Decay Duration')} ({decay.toFixed(1)}s)
-                <input
-                  type="range"
-                  min="0.3"
-                  max="8.0"
-                  step="0.1"
-                  value={decay}
-                  onChange={(e) => {
-                    setDecay(Number(e.target.value));
-                    if (isPlaying) setupLiveGraph(pauseOffsetRef.current);
-                  }}
-                  className="w-full accent-primary mt-1.5 cursor-pointer"
-                />
-              </label>
-
-              <label className="text-xs font-semibold text-main">
-                {t('Tone Filter (Lowpass)')} ({damping} Hz)
-                <input
-                  type="range"
-                  min="800"
-                  max="12000"
-                  step="100"
-                  value={damping}
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    setDamping(val);
-                    if (filterNodeRef.current) filterNodeRef.current.frequency.value = val;
-                  }}
-                  className="w-full accent-primary mt-1.5 cursor-pointer"
-                />
-              </label>
+            <div className="control-group">
+              <div className="slider-label-row">
+                <span>{t('Decay Duration')}</span>
+                <strong>{decay.toFixed(1)}s</strong>
+              </div>
+              <input
+                type="range"
+                min="0.3"
+                max="8.0"
+                step="0.1"
+                value={decay}
+                onChange={(e) => {
+                  setDecay(Number(e.target.value));
+                  if (isPlaying) setupLiveGraph(pauseOffsetRef.current);
+                }}
+              />
             </div>
 
-            {/* Action Buttons */}
-            <div className="mt-auto pt-4 border-t border-subtle flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={exportProcessedAudio}
-                disabled={!audioBuffer || isProcessing}
-                className="btn btn-primary w-full py-3 min-h-[44px] font-semibold text-sm flex items-center justify-center gap-2"
-              >
-                <ArrowDownToLine className="w-4 h-4" />
-                {isProcessing ? t('Rendering Audio…') : t('Export Studio WAV')}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="btn btn-secondary w-full py-2.5 min-h-[44px] text-xs flex items-center justify-center gap-2"
-              >
-                <Upload className="w-4 h-4" />
-                {audioBuffer ? t('Change Audio File') : t('Select Audio File')}
-              </button>
+            <div className="control-group">
+              <div className="slider-label-row">
+                <span>{t('Tone Filter (Lowpass)')}</span>
+                <strong>{damping} Hz</strong>
+              </div>
+              <input
+                type="range"
+                min="800"
+                max="12000"
+                step="100"
+                value={damping}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setDamping(val);
+                  if (filterNodeRef.current) filterNodeRef.current.frequency.value = val;
+                }}
+              />
             </div>
+
+            <button
+              type="button"
+              className="btn-change-file"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload size={14} />
+              {audioBuffer ? t('Change Audio File') : t('Select Audio File')}
+            </button>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
