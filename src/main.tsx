@@ -7,14 +7,17 @@ import {
   Camera,
   Check,
   ChevronDown,
+  Code,
   Columns,
   Cpu,
   EyeOff,
   FileImage,
   Files,
   Film,
+  Gauge,
   Image,
   Layers,
+  ListMusic,
   Lock,
   LockKeyhole,
   Maximize,
@@ -23,6 +26,7 @@ import {
   Mic,
   Monitor,
   Moon,
+  Palette,
   PenTool,
   Plus,
   Printer,
@@ -68,6 +72,11 @@ const AudioCutterTool = lazy(() => import('./AudioCutterTool'));
 const GridSplitTool = lazy(() => import('./GridSplitTool'));
 const EncryptTool = lazy(() => import('./EncryptTool'));
 const PdfGrayscaleTool = lazy(() => import('./PdfGrayscaleTool'));
+const AudioShiftTool = lazy(() => import('./AudioShiftTool'));
+const PaletteTool = lazy(() => import('./PaletteTool'));
+const AudioMergeTool = lazy(() => import('./AudioMergeTool'));
+const SvgOptimizeTool = lazy(() => import('./SvgOptimizeTool'));
+const ModernConvertTool = lazy(() => import('./ModernConvertTool'));
 
 type Tool = {
   id: string;
@@ -112,7 +121,12 @@ const tools: Tool[] = [
   { id: 'audiocutter', name: 'Audio Trimmer & Ringtone', description: 'Cut custom phone ringtones, alarm tones, and audio clips with interactive waveform scrubbing.', category: 'Image tools', icon: Scissors, color: 'coral', tag: 'NEW', formats: 'MP3, WAV, M4A' },
   { id: 'gridsplit', name: 'Carousel & Grid Splitter', description: 'Slice panoramic photos into seamless swipeable Instagram carousel slides or 3x3 grids.', category: 'Image tools', icon: Columns, color: 'violet', tag: 'NEW', formats: 'JPG, PNG, WebP' },
   { id: 'encrypt', name: 'Encrypted File Vault', description: 'Lock any document, photo, or archive with military-grade 256-bit password encryption.', category: 'PDF tools', icon: Lock, color: 'green', tag: 'SECURITY', formats: 'Any file, .xenn' },
-  { id: 'pdfgrayscale', name: 'PDF Ink Saver & Grayscale', description: 'Convert color PDFs into ink-saving black and white or grayscale to save printer cartridge ink.', category: 'PDF tools', icon: Printer, color: 'teal', tag: 'NEW', formats: 'PDF' }
+  { id: 'pdfgrayscale', name: 'PDF Ink Saver & Grayscale', description: 'Convert color PDFs into ink-saving black and white or grayscale to save printer cartridge ink.', category: 'PDF tools', icon: Printer, color: 'teal', tag: 'NEW', formats: 'PDF' },
+  { id: 'audioshift', name: 'Audio Pitch & Speed', description: 'Change audio playback speed or transpose musical pitch (+/- 12 semitones) for singing or study.', category: 'Image tools', icon: Gauge, color: 'violet', tag: 'NEW', formats: 'MP3, WAV, M4A' },
+  { id: 'palette', name: 'Color Palette & Eyedropper', description: 'Extract dominant color palettes from photos, inspect WCAG contrast, and click any pixel to sample colors.', category: 'Image tools', icon: Palette, color: 'emerald', tag: 'NEW', formats: 'JPG, PNG, WebP' },
+  { id: 'audiomerge', name: 'Audio Track Merger', description: 'Combine multiple songs, podcast clips, or voice notes into a continuous master track with crossfades.', category: 'Image tools', icon: ListMusic, color: 'coral', tag: 'NEW', formats: 'MP3, WAV, M4A' },
+  { id: 'svgoptimize', name: 'SVG Cleaner & Minifier', description: 'Strip editor bloat, metadata, and excess decimal precision from Figma, Canva, and Illustrator SVGs.', category: 'Image tools', icon: Code, color: 'orange', tag: 'DEV', formats: 'SVG' },
+  { id: 'modernconvert', name: 'WebP & AVIF Optimizer', description: 'Convert photos to next-generation WebP and AVIF formats for lightning-fast websites.', category: 'Image tools', icon: Zap, color: 'teal', tag: 'HOT', formats: 'JPG, PNG, WebP, AVIF' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -1089,6 +1103,96 @@ function App() {
             }
           >
             <PdfGrayscaleTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'audioshift' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <AudioShiftTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'palette' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <PaletteTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'audiomerge' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <AudioMergeTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'svgoptimize' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <SvgOptimizeTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'modernconvert' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <ModernConvertTool
               initialFiles={initialFiles}
               close={() => {
                 setActive(null);
