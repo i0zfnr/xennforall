@@ -4,17 +4,21 @@ import { createRoot } from 'react-dom/client';
 import {
   ArrowDownToLine,
   ArrowRight,
+  Binary,
   Camera,
   Check,
   ChevronDown,
   Code,
+  Code2,
   Columns,
   Cpu,
   EyeOff,
   FileImage,
   Files,
+  FileText,
   Film,
   Gauge,
+  Globe,
   Image,
   Layers,
   ListMusic,
@@ -77,6 +81,12 @@ const PaletteTool = lazy(() => import('./PaletteTool'));
 const AudioMergeTool = lazy(() => import('./AudioMergeTool'));
 const SvgOptimizeTool = lazy(() => import('./SvgOptimizeTool'));
 const ModernConvertTool = lazy(() => import('./ModernConvertTool'));
+const OcrReaderTool = lazy(() => import('./OcrReaderTool'));
+const WatermarkImageTool = lazy(() => import('./WatermarkImageTool'));
+const FaviconGenTool = lazy(() => import('./FaviconGenTool'));
+const Base64StudioTool = lazy(() => import('./Base64StudioTool'));
+const CodeToImgTool = lazy(() => import('./CodeToImgTool'));
+const AudioReverbTool = lazy(() => import('./AudioReverbTool'));
 
 type Tool = {
   id: string;
@@ -126,7 +136,13 @@ const tools: Tool[] = [
   { id: 'palette', name: 'Color Palette & Eyedropper', description: 'Extract dominant color palettes from photos, inspect WCAG contrast, and click any pixel to sample colors.', category: 'Image tools', icon: Palette, color: 'emerald', tag: 'NEW', formats: 'JPG, PNG, WebP' },
   { id: 'audiomerge', name: 'Audio Track Merger', description: 'Combine multiple songs, podcast clips, or voice notes into a continuous master track with crossfades.', category: 'Image tools', icon: ListMusic, color: 'coral', tag: 'NEW', formats: 'MP3, WAV, M4A' },
   { id: 'svgoptimize', name: 'SVG Cleaner & Minifier', description: 'Strip editor bloat, metadata, and excess decimal precision from Figma, Canva, and Illustrator SVGs.', category: 'Image tools', icon: Code, color: 'orange', tag: 'DEV', formats: 'SVG' },
-  { id: 'modernconvert', name: 'WebP & AVIF Optimizer', description: 'Convert photos to next-generation WebP and AVIF formats for lightning-fast websites.', category: 'Image tools', icon: Zap, color: 'teal', tag: 'HOT', formats: 'JPG, PNG, WebP, AVIF' }
+  { id: 'modernconvert', name: 'WebP & AVIF Optimizer', description: 'Convert photos to next-generation WebP and AVIF formats for lightning-fast websites.', category: 'Image tools', icon: Zap, color: 'teal', tag: 'HOT', formats: 'JPG, PNG, WebP, AVIF' },
+  { id: 'ocr_reader', name: 'OCR Photo & Doc Scanner', description: 'Extract editable text from receipts, documents, and screenshots directly in browser memory.', category: 'PDF tools', icon: FileText, color: 'violet', tag: 'AI OCR', formats: 'PNG, JPG, WebP' },
+  { id: 'watermark_img', name: 'Photo Watermark & Copyright', description: 'Stamp custom text, logo graphics, or tiled protection grids on single or batch photos.', category: 'Image tools', icon: Layers, color: 'coral', tag: 'BATCH', formats: 'JPG, PNG, WebP' },
+  { id: 'favicongen', name: 'Favicon & App Icon Generator', description: 'Generate all browser tab icons, Apple Touch, Android PWA icons, HTML tags, and manifest in a ZIP.', category: 'Image tools', icon: Globe, color: 'blue', tag: 'DEV', formats: 'PNG, SVG, JPG' },
+  { id: 'base64_studio', name: 'Base64 Data URI & Asset Studio', description: 'Encode files to inline Base64/Data URI strings, HTML/CSS tags, or decode Base64 back to files.', category: 'Image tools', icon: Binary, color: 'teal', tag: 'STUDIO', formats: 'Any file' },
+  { id: 'code_to_img', name: 'Code Screenshot & Card Studio', description: 'Render syntax-highlighted code snippets into beautiful cards with traffic lights and gradients.', category: 'Image tools', icon: Code2, color: 'orange', tag: 'HOT', formats: 'Code, Text' },
+  { id: 'audioreverb', name: 'Acoustic Reverb & Spatial Audio', description: 'Immerse audio in cathedral, concert hall, room, or cosmic space acoustics using impulse convolution.', category: 'Image tools', icon: Volume2, color: 'emerald', tag: 'AUDIO', formats: 'MP3, WAV, M4A' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -522,6 +538,12 @@ function App() {
                     <button onClick={() => setActive(tools.find((x) => x.id === 'encrypt')!)}>Vault</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'audiorecorder')!)}>Voice Memo</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'videotogif')!)}>GIF Maker</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'ocr_reader')!)}>OCR</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'watermark_img')!)}>Watermark</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'favicongen')!)}>Favicon</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'code_to_img')!)}>Code Card</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'base64_studio')!)}>Base64</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'audioreverb')!)}>Reverb</button>
                   </div>
                 </div>
               </div>
@@ -1193,6 +1215,114 @@ function App() {
             }
           >
             <ModernConvertTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'ocr_reader' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <OcrReaderTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'watermark_img' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <WatermarkImageTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'favicongen' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <FaviconGenTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'base64_studio' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <Base64StudioTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'code_to_img' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <CodeToImgTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'audioreverb' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <AudioReverbTool
               initialFiles={initialFiles}
               close={() => {
                 setActive(null);
