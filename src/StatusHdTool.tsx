@@ -66,7 +66,7 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
   const [resultParts, setResultParts] = useState<StatusPart[]>([]);
   const [singleImageResult, setSingleImageResult] = useState<{ blob: Blob; url: string; size: number } | null>(null);
   const [activePartPreview, setActivePartPreview] = useState<number>(0);
-  const [showHdTrickGuide, setShowHdTrickGuide] = useState<boolean>(true);
+  const [showHdTrickGuide, setShowHdTrickGuide] = useState<boolean>(false);
 
   // Hidden stage elements
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -320,11 +320,10 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
     targetH: number,
     bitrate: number,
     framing: string,
-    sliceLabel: string,
+    _sliceLabel: string,
     onProgressUpdate: (pct: number, elapsed: number, total: number) => void
   ): Promise<Blob> {
     return new Promise<Blob>((resolve, reject) => {
-      // Create a fresh dedicated video element for this slice
       const sourceVideo = document.createElement('video');
       sourceVideo.playsInline = true;
       sourceVideo.crossOrigin = 'anonymous';
@@ -335,6 +334,12 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
       let animFrameId = 0;
       let isFinishing = false;
       let recorder: MediaRecorder | null = null;
+
+      // Offscreen tiny canvas for ultra-fast GPU bilinear blur
+      const blurCanvas = document.createElement('canvas');
+      blurCanvas.width = 40;
+      blurCanvas.height = 72;
+      const blurCtx = blurCanvas.getContext('2d', { alpha: false });
 
       function cleanupResources() {
         if (animFrameId) cancelAnimationFrame(animFrameId);
@@ -350,16 +355,9 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
         }
       }
 
-      sourceVideo.src = videoUrl;
-      sourceVideo.currentTime = startTime;
-
-      const handleSeeked = () => {
-        sourceVideo.removeEventListener('seeked', handleSeeked);
-
+      const startRecording = () => {
         // SILENT AUDIO ROUTING:
-        // By connecting sourceVideo to Web Audio MediaStreamDestination WITHOUT connecting
-        // to audioCtx.destination, zero sound plays to the speakers, but audio buffers
-        // are captured cleanly into MediaRecorder!
+        // Connect to MediaStreamDestination without connecting to audioCtx.destination
         try {
           const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
           if (AudioContextClass) {
@@ -367,15 +365,12 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
             const sourceNode = audioCtx.createMediaElementSource(sourceVideo);
             const destinationNode = audioCtx.createMediaStreamDestination();
             sourceNode.connect(destinationNode);
-            // CRITICAL: We DO NOT call sourceNode.connect(audioCtx.destination).
-            // This guarantees the computer/phone speakers remain 100% silent!
             const tracks = destinationNode.stream.getAudioTracks();
             if (tracks && tracks.length > 0) {
               audioTrack = tracks[0];
             }
           }
-        } catch (e) {
-          // If Web Audio is restricted or video has no audio, mute video element to keep speakers silent
+        } catch {
           sourceVideo.muted = true;
           try {
             const videoElAny = sourceVideo as any;
@@ -414,23 +409,30 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
         };
 
         const sliceDuration = Math.max(0.1, endTime - startTime);
+        const sourceAspect = (sourceVideo.videoWidth || 720) / (sourceVideo.videoHeight || 1280);
+        const targetAspect = targetW / targetH;
+        // If aspect ratio is already approximately 9:16 portrait (within 4%), skip framing overhead!
+        const isAlreadyMatchingAspect = Math.abs(sourceAspect - targetAspect) < 0.04;
 
         function renderFrame() {
           if (isFinishing) return;
 
-          // Background pass (if blur)
-          if (framing === 'blur') {
-            ctx.save();
-            ctx.filter = 'blur(24px) brightness(0.6)';
-            const bgScale = Math.max(targetW / sourceVideo.videoWidth, targetH / sourceVideo.videoHeight);
-            const bgW = sourceVideo.videoWidth * bgScale;
-            const bgH = sourceVideo.videoHeight * bgScale;
-            const bgX = (targetW - bgW) / 2;
-            const bgY = (targetH - bgH) / 2;
-            ctx.drawImage(sourceVideo, bgX, bgY, bgW, bgH);
-            ctx.restore();
+          if (isAlreadyMatchingAspect) {
+            // Direct fast single-blit draw!
+            ctx.drawImage(sourceVideo, 0, 0, targetW, targetH);
+          } else if (framing === 'blur') {
+            // Ultra-fast GPU bilinear blur via downscaled canvas blit
+            if (blurCtx) {
+              blurCtx.drawImage(sourceVideo, 0, 0, 40, 72);
+              ctx.drawImage(blurCanvas, 0, 0, targetW, targetH);
+              ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+              ctx.fillRect(0, 0, targetW, targetH);
+            } else {
+              ctx.fillStyle = '#0a0d14';
+              ctx.fillRect(0, 0, targetW, targetH);
+            }
 
-            // Centered sharp video
+            // Foreground centered sharp video
             const fgScale = Math.min(targetW / sourceVideo.videoWidth, targetH / sourceVideo.videoHeight);
             const fgW = sourceVideo.videoWidth * fgScale;
             const fgH = sourceVideo.videoHeight * fgScale;
@@ -505,7 +507,6 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
 
         recorder.start(150);
 
-        // Resume AudioContext if suspended by browser policy
         if (audioCtx && audioCtx.state === 'suspended') {
           audioCtx.resume().catch(() => {});
         }
@@ -516,7 +517,6 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
             animFrameId = requestAnimationFrame(renderFrame);
           })
           .catch(() => {
-            // If browser autoplay blocks without mute, mute element and retry
             sourceVideo.muted = true;
             sourceVideo
               .play()
@@ -530,7 +530,27 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
           });
       };
 
-      sourceVideo.addEventListener('seeked', handleSeeked);
+      // Handle seeking safely without hanging on mobile Safari
+      const onReady = () => {
+        sourceVideo.removeEventListener('loadeddata', onReady);
+        sourceVideo.removeEventListener('canplay', onReady);
+
+        if (startTime > 0.05 && Math.abs(sourceVideo.currentTime - startTime) > 0.1) {
+          const onSeeked = () => {
+            sourceVideo.removeEventListener('seeked', onSeeked);
+            startRecording();
+          };
+          sourceVideo.addEventListener('seeked', onSeeked);
+          sourceVideo.currentTime = startTime;
+        } else {
+          startRecording();
+        }
+      };
+
+      sourceVideo.addEventListener('loadeddata', onReady);
+      sourceVideo.addEventListener('canplay', onReady);
+      sourceVideo.src = videoUrl;
+      sourceVideo.load();
     });
   }
 

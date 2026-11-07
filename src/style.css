@@ -2083,16 +2083,107 @@ footer span {
     flex-wrap: wrap;
     justify-content: center;
   }
+  .workspace-backdrop,
+  .modal-backdrop.workspace-backdrop {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    background: var(--bg-surface) !important;
+  }
+  .tool-workspace {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    max-height: 100dvh !important;
+    min-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .workspace-topbar {
+    height: 48px !important;
+    padding: 0 12px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 25 !important;
+    background: var(--bg-surface) !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+  }
+  .workspace-private {
+    display: none !important;
+  }
   .workspace-heading {
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 10px 14px 6px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+  .workspace-heading .tool-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+  }
+  .workspace-heading .tool-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .workspace-heading h2 {
+    font-size: 16px !important;
+    letter-spacing: -0.3px !important;
+    line-height: 1.25 !important;
+    margin: 1px 0 !important;
+  }
+  .workspace-heading p {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+  .workspace-free {
+    display: none !important;
   }
   .workspace-steps {
-    flex-direction: column;
-    gap: 10px;
+    margin: 0 12px 8px !important;
+    padding: 6px 10px !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    border-radius: 8px !important;
+  }
+  .workspace-steps::-webkit-scrollbar {
+    display: none !important;
+  }
+  .workspace-steps li {
+    font-size: 10.5px !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+    flex: none !important;
+  }
+  .step-number {
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 10px !important;
   }
   .step-connector {
-    display: none;
+    display: none !important;
+  }
+  .workspace-grid {
+    padding: 10px 12px 28px !important;
+    gap: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .workspace-canvas,
+  .workspace-controls {
+    padding: 12px !important;
+    border-radius: 10px !important;
   }
   .organizer-grid {
     grid-template-columns: repeat(2, 1fr);
