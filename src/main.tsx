@@ -50,6 +50,7 @@ import {
   Smartphone,
   Smile,
   Sparkles,
+  Star,
   Sun,
   Upload,
   Video,
@@ -62,6 +63,7 @@ import type { LucideIcon } from 'lucide-react';
 import './style.css';
 import brandIcon from './assets/icon.png';
 import { FilePreview } from './FilePreview';
+import CommandPalette from './CommandPalette';
 const NewTools = lazy(() => import('./NewTools'));
 const BatchImages = lazy(() => import('./BatchImages'));
 const StatusHdTool = lazy(() => import('./StatusHdTool'));
@@ -228,7 +230,29 @@ function App() {
   const [initialFiles, setInitialFiles] = useState<File[]>([]);
   const [info, setInfo] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
+  const [cmdOpen, setCmdOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  // Favorites pinned state persisted locally
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('xenn_favorites');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const toggleFavorite = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setFavorites((prev) => {
+      const updated = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      try {
+        localStorage.setItem('xenn_favorites', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
 
   // Hero Drop Zone State
   const [heroFile, setHeroFile] = useState<File | null>(null);
@@ -237,24 +261,34 @@ function App() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        searchRef.current?.focus();
+        setCmdOpen((prev) => !prev);
       }
       if (e.key === 'Escape') {
         setInfo(null);
         setMobile(false);
+        setCmdOpen(false);
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
-  const visible = tools.filter(
-    (tool) =>
-      (category === 'All tools' || tool.category === category) &&
-      `${tool.name} ${tool.description} ${t(tool.name)} ${t(tool.description)}`.toLowerCase().includes(query.toLowerCase())
-  );
+  const visible = tools.filter((tool) => {
+    const matchesCategory =
+      category === 'All tools' ||
+      (category === 'Favorites' && favorites.includes(tool.id)) ||
+      (category === 'PDF tools' && tool.category === 'PDF tools') ||
+      (category === 'Image tools' && tool.category === 'Image tools') ||
+      (category === 'Audio & Video' && ['audio', 'reverb', 'eq', '8d', 'gate', 'cutter', 'recorder', 'video', 'tiktok', 'livephoto', 'status_hd'].some((k) => tool.id.includes(k))) ||
+      (category === 'Dev & Security' && ['json', 'base64', 'code', 'hash', 'encrypt', 'svg', 'qr', 'metadata'].some((k) => tool.id.includes(k)));
+
+    if (!matchesCategory) return false;
+    return `${tool.name} ${tool.description} ${t(tool.name)} ${t(tool.description)} ${tool.formats || ''} ${tool.tag || ''}`
+      .toLowerCase()
+      .includes(query.toLowerCase());
+  });
 
   function openToolWithFiles(tool: Tool, files: File[]) {
     setInitialFiles(files);
@@ -297,6 +331,17 @@ function App() {
           </nav>
 
           <div className="header-actions">
+            <button
+              className="cmd-search-trigger"
+              onClick={() => setCmdOpen(true)}
+              title={t("Search 54 tools (Ctrl + K)")}
+              aria-label={t("Search tools")}
+            >
+              <Search size={14} />
+              <span>{t("Search tools…")}</span>
+              <kbd>Ctrl K</kbd>
+            </button>
+
             <label className="language-switch">
               <span className="language-label">{language === 'ms' ? 'Bahasa' : 'Language'}</span>
               <select
@@ -604,34 +649,120 @@ function App() {
                 <Search size={18} />
                 <input
                   ref={searchRef}
-                  placeholder={t("Find a tool…")}
+                  placeholder={t("Find a tool or press Ctrl+K…")}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   aria-label={t("Search tools")}
                 />
-                <kbd>Ctrl K</kbd>
+                <button
+                  type="button"
+                  className="kbd-btn"
+                  onClick={() => setCmdOpen(true)}
+                  title={t("Open Command Palette")}
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer' }}
+                >
+                  <kbd>Ctrl K</kbd>
+                </button>
               </label>
             </div>
 
             <div className="filter-row">
               <div className="filters">
-                {['All tools', 'PDF tools', 'Image tools'].map((cat, i) => (
+                <button
+                  className={category === 'All tools' ? 'selected' : ''}
+                  onClick={() => setCategory('All tools')}
+                >
+                  <Layers size={15} /> {t("All tools")}
+                  <span>{tools.length}</span>
+                </button>
+                {favorites.length > 0 && (
                   <button
-                    className={category === cat ? 'selected' : ''}
-                    onClick={() => setCategory(cat)}
-                    key={cat}
+                    className={category === 'Favorites' ? 'selected' : ''}
+                    onClick={() => setCategory('Favorites')}
                   >
-                    {i === 0 ? <Layers size={15} /> : i === 1 ? <Files size={15} /> : <Image size={15} />}{' '}
-                    {t(cat)}
-                    <span>{i === 0 ? tools.length : tools.filter((t) => t.category === cat).length}</span>
+                    <Star size={15} fill="#f59e0b" color="#f59e0b" /> {t("Favorites")}
+                    <span>{favorites.length}</span>
                   </button>
-                ))}
+                )}
+                <button
+                  className={category === 'PDF tools' ? 'selected' : ''}
+                  onClick={() => setCategory('PDF tools')}
+                >
+                  <Files size={15} /> {t("PDF & Docs")}
+                  <span>{tools.filter((t) => t.category === 'PDF tools').length}</span>
+                </button>
+                <button
+                  className={category === 'Image tools' ? 'selected' : ''}
+                  onClick={() => setCategory('Image tools')}
+                >
+                  <Image size={15} /> {t("Image & Photo")}
+                  <span>{tools.filter((t) => t.category === 'Image tools' && !['audio', 'reverb', 'eq', '8d', 'gate', 'cutter', 'recorder'].some((k) => t.id.includes(k))).length}</span>
+                </button>
+                <button
+                  className={category === 'Audio & Video' ? 'selected' : ''}
+                  onClick={() => setCategory('Audio & Video')}
+                >
+                  <Volume2 size={15} /> {t("Audio & Video")}
+                  <span>{tools.filter((t) => ['audio', 'reverb', 'eq', '8d', 'gate', 'cutter', 'recorder', 'video', 'tiktok', 'livephoto', 'status_hd'].some((k) => t.id.includes(k))).length}</span>
+                </button>
+                <button
+                  className={category === 'Dev & Security' ? 'selected' : ''}
+                  onClick={() => setCategory('Dev & Security')}
+                >
+                  <Code2 size={15} /> {t("Dev & Security")}
+                  <span>{tools.filter((t) => ['json', 'base64', 'code', 'hash', 'encrypt', 'svg', 'qr', 'metadata'].some((k) => t.id.includes(k))).length}</span>
+                </button>
               </div>
               <span className="local-note">
                 <ShieldCheck size={15} />
                 {t("Your files stay on your device")}
               </span>
             </div>
+
+            {/* Pinned Favorites Quick Shelf */}
+            {favorites.length > 0 && category === 'All tools' && !query && (
+              <div className="favorites-shelf">
+                <div className="favorites-shelf-header">
+                  <span className="favorites-shelf-title">
+                    <Star size={14} className="shelf-star" fill="currentColor" /> {t("Pinned Favorites")}
+                  </span>
+                  <span className="favorites-shelf-count">
+                    {favorites.length} {favorites.length === 1 ? t("tool pinned") : t("tools pinned")}
+                  </span>
+                </div>
+                <div className="favorites-shelf-grid">
+                  {favorites.map((favId) => {
+                    const favTool = tools.find((t) => t.id === favId);
+                    if (!favTool) return null;
+                    const FavIcon = favTool.icon;
+                    return (
+                      <div
+                        key={favTool.id}
+                        className="fav-chip-card"
+                        onClick={() => openToolWithFiles(favTool, [])}
+                      >
+                        <span className={`fav-chip-icon ${favTool.color}`}>
+                          <FavIcon size={16} strokeWidth={2} />
+                        </span>
+                        <span className="fav-chip-name">{t(favTool.name)}</span>
+                        <button
+                          type="button"
+                          className="fav-chip-unpin"
+                          title={t("Unpin")}
+                          aria-label={t("Unpin")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(favTool.id, e);
+                          }}
+                        >
+                          <X size={13} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="tool-grid">
               {visible.map((tool) => (
@@ -648,6 +779,15 @@ function App() {
                       {tool.tag && <span className="tag">{t(tool.tag)}</span>}
                       <span className="card-format-tag">{tool.formats}</span>
                     </div>
+                    <button
+                      type="button"
+                      className={`card-star-btn ${favorites.includes(tool.id) ? 'pinned' : ''}`}
+                      title={favorites.includes(tool.id) ? t("Unpin from favorites") : t("Pin to favorites")}
+                      aria-label={favorites.includes(tool.id) ? t("Unpin from favorites") : t("Pin to favorites")}
+                      onClick={(e) => toggleFavorite(tool.id, e)}
+                    >
+                      <Star size={16} fill={favorites.includes(tool.id) ? 'currentColor' : 'none'} />
+                    </button>
                   </div>
                   <h3>{t(tool.name)}</h3>
                   <p>{t(tool.description)}</p>
@@ -1616,6 +1756,15 @@ function App() {
           </section>
         </div>
       )}
+
+      <CommandPalette
+        isOpen={cmdOpen}
+        onClose={() => setCmdOpen(false)}
+        tools={tools}
+        onSelectTool={(tool) => openToolWithFiles(tool, [])}
+        favorites={favorites}
+        onToggleFavorite={toggleFavorite}
+      />
     </>
   );
 }
