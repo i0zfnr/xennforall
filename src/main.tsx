@@ -5,6 +5,7 @@ import {
   ArrowDownToLine,
   ArrowRight,
   Binary,
+  Braces,
   Camera,
   Check,
   ChevronDown,
@@ -17,14 +18,18 @@ import {
   Files,
   FileText,
   Film,
+  FolderArchive,
   Gauge,
   Globe,
+  Headphones,
   Image,
+  KeyRound,
   Layers,
   ListMusic,
   Lock,
   LockKeyhole,
   Maximize,
+  Maximize2,
   Menu,
   Merge,
   Mic,
@@ -41,7 +46,9 @@ import {
   Search,
   ShieldAlert,
   ShieldCheck,
+  Sliders,
   Smartphone,
+  Smile,
   Sparkles,
   Sun,
   Upload,
@@ -87,6 +94,17 @@ const FaviconGenTool = lazy(() => import('./FaviconGenTool'));
 const Base64StudioTool = lazy(() => import('./Base64StudioTool'));
 const CodeToImgTool = lazy(() => import('./CodeToImgTool'));
 const AudioReverbTool = lazy(() => import('./AudioReverbTool'));
+const AudioEqTool = lazy(() => import('./AudioEqTool'));
+const Audio8dTool = lazy(() => import('./Audio8dTool'));
+const AudioGateTool = lazy(() => import('./AudioGateTool'));
+const AspectFitTool = lazy(() => import('./AspectFitTool'));
+const VideoCaptionTool = lazy(() => import('./VideoCaptionTool'));
+const MemeGenTool = lazy(() => import('./MemeGenTool'));
+const BatchRenamerTool = lazy(() => import('./BatchRenamerTool'));
+const PdfMetadataTool = lazy(() => import('./PdfMetadataTool'));
+const HashVerifierTool = lazy(() => import('./HashVerifierTool'));
+const JsonStudioTool = lazy(() => import('./JsonStudioTool'));
+const MarkdownStudioTool = lazy(() => import('./MarkdownStudioTool'));
 
 type Tool = {
   id: string;
@@ -142,7 +160,18 @@ const tools: Tool[] = [
   { id: 'favicongen', name: 'Favicon & App Icon Generator', description: 'Generate all browser tab icons, Apple Touch, Android PWA icons, HTML tags, and manifest in a ZIP.', category: 'Image tools', icon: Globe, color: 'blue', tag: 'DEV', formats: 'PNG, SVG, JPG' },
   { id: 'base64_studio', name: 'Base64 Data URI & Asset Studio', description: 'Encode files to inline Base64/Data URI strings, HTML/CSS tags, or decode Base64 back to files.', category: 'Image tools', icon: Binary, color: 'teal', tag: 'STUDIO', formats: 'Any file' },
   { id: 'code_to_img', name: 'Code Screenshot & Card Studio', description: 'Render syntax-highlighted code snippets into beautiful cards with traffic lights and gradients.', category: 'Image tools', icon: Code2, color: 'orange', tag: 'HOT', formats: 'Code, Text' },
-  { id: 'audioreverb', name: 'Acoustic Reverb & Spatial Audio', description: 'Immerse audio in cathedral, concert hall, room, or cosmic space acoustics using impulse convolution.', category: 'Image tools', icon: Volume2, color: 'emerald', tag: 'AUDIO', formats: 'MP3, WAV, M4A' }
+  { id: 'audioreverb', name: 'Acoustic Reverb & Spatial Audio', description: 'Immerse audio in cathedral, concert hall, room, or cosmic space acoustics using impulse convolution.', category: 'Image tools', icon: Volume2, color: 'emerald', tag: 'AUDIO', formats: 'MP3, WAV, M4A' },
+  { id: 'audio_eq', name: 'Vocal Equalizer & Bass Booster', description: 'Fine-tune acoustic frequencies, boost deep bass, and sculpt vocal warmth with real-time spectrum feedback.', category: 'Image tools', icon: Sliders, color: 'violet', tag: '7-BAND EQ', formats: 'MP3, WAV, M4A' },
+  { id: 'audio_8d', name: '8D Spatial Audio & Binaural Orbit', description: 'Simulate dynamic 360-degree rotating binaural audio that orbits around your head for headphones.', category: 'Image tools', icon: Headphones, color: 'blue', tag: '8D AUDIO', formats: 'MP3, WAV, M4A' },
+  { id: 'audio_gate', name: 'Audio Silence Trimmer & Voice Gate', description: 'Automatically detect and strip dead silence and background room hiss from podcasts and voice memos.', category: 'Image tools', icon: Scissors, color: 'orange', tag: 'AUTO TRIM', formats: 'MP3, WAV, M4A' },
+  { id: 'aspect_fit', name: 'Aspect Ratio Fit & Blur Background', description: 'Fit photos into Instagram, TikTok, Reels, or YouTube ratios without cropping using frosted borders.', category: 'Image tools', icon: Maximize2, color: 'coral', tag: 'NO CROP', formats: 'JPG, PNG, WebP' },
+  { id: 'video_captions', name: 'Video Subtitle & SRT Caption Studio', description: 'Create, edit, and sync subtitles directly over video clips with live overlay previews and SRT export.', category: 'Image tools', icon: Film, color: 'violet', tag: 'SRT & VTT', formats: 'MP4, WebM, MOV' },
+  { id: 'meme_gen', name: 'Meme Generator & Text Overlay', description: 'Create classic Impact memes or modern card-style posts with high-contrast outlines and image copying.', category: 'Image tools', icon: Smile, color: 'orange', tag: 'MEME', formats: 'JPG, PNG, WebP' },
+  { id: 'batch_renamer', name: 'Batch File Renamer & Pattern Stamper', description: 'Rename dozens of files at once using smart prefixes, find and replace, date stamps, and index counters.', category: 'PDF tools', icon: FolderArchive, color: 'teal', tag: 'BATCH', formats: 'Any file, ZIP' },
+  { id: 'pdf_metadata', name: 'PDF Metadata Cleaner & Inspector', description: 'Inspect and eradicate hidden author names, software producer tags, and creation timestamps from PDFs.', category: 'PDF tools', icon: ShieldAlert, color: 'coral', tag: 'PRIVACY', formats: 'PDF' },
+  { id: 'hash_verifier', name: 'Checksum & Hash Verifier', description: 'Compute authentic SHA-256, SHA-512, and SHA-1 cryptographic hashes to verify file integrity.', category: 'PDF tools', icon: KeyRound, color: 'blue', tag: 'SECURITY', formats: 'Any file' },
+  { id: 'json_studio', name: 'JSON Studio & Syntax Formatter', description: 'Beautify, validate, minify, and inspect JSON data in browser memory with instant error location.', category: 'Image tools', icon: Braces, color: 'teal', tag: 'DEV', formats: 'JSON, Text' },
+  { id: 'markdown_studio', name: 'Markdown Document Studio', description: 'Write and preview rich formatted documents with GitHub-flavored Markdown. Export clean HTML or print to PDF.', category: 'PDF tools', icon: FileText, color: 'orange', tag: 'DOCS', formats: 'MD, HTML, PDF' }
 ];
 
 function download(blob: Blob, name: string) {
@@ -544,6 +573,17 @@ function App() {
                     <button onClick={() => setActive(tools.find((x) => x.id === 'code_to_img')!)}>Code Card</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'base64_studio')!)}>Base64</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'audioreverb')!)}>Reverb</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'audio_eq')!)}>EQ</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'audio_8d')!)}>8D Audio</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'audio_gate')!)}>Voice Gate</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'aspect_fit')!)}>Aspect Fit</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'video_captions')!)}>Captions</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'meme_gen')!)}>Meme</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'batch_renamer')!)}>Renamer</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'pdf_metadata')!)}>PDF Meta</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'hash_verifier')!)}>Hash Verify</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'json_studio')!)}>JSON</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'markdown_studio')!)}>Markdown</button>
                   </div>
                 </div>
               </div>
@@ -1323,6 +1363,204 @@ function App() {
             }
           >
             <AudioReverbTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'audio_eq' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <AudioEqTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'audio_8d' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <Audio8dTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'audio_gate' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <AudioGateTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'aspect_fit' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <AspectFitTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'video_captions' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <VideoCaptionTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'meme_gen' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <MemeGenTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'batch_renamer' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <BatchRenamerTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'pdf_metadata' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <PdfMetadataTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'hash_verifier' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <HashVerifierTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'json_studio' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <JsonStudioTool
+              initialFiles={initialFiles}
+              close={() => {
+                setActive(null);
+                setInitialFiles([]);
+              }}
+            />
+          </Suspense>
+        ) : active.id === 'markdown_studio' ? (
+          <Suspense
+            fallback={
+              <div className="modal-backdrop">
+                <div className="modal" role="status">
+                  {t("Loading your tool…")}
+                </div>
+              </div>
+            }
+          >
+            <MarkdownStudioTool
               initialFiles={initialFiles}
               close={() => {
                 setActive(null);
