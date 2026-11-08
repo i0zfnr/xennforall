@@ -187,16 +187,50 @@ export default function QrStudioTool({ close }: QrStudioToolProps) {
     // Draw icon symbol
     ctx.fillStyle = fgColor;
     ctx.font = `bold ${Math.round(size * 0.55)}px sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.fillStyle = fgColor;
+    ctx.strokeStyle = fgColor;
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
-    let symbol = '★';
-    if (iconType === 'wifi') symbol = '📶';
-    if (iconType === 'whatsapp') symbol = '💬';
-    if (iconType === 'link') symbol = '🔗';
-    if (iconType === 'user') symbol = '👤';
-
-    ctx.fillText(symbol, center, center);
+    if (iconType === 'wifi') {
+      ctx.beginPath();
+      ctx.arc(center, center + 4, 10, -Math.PI * 0.75, -Math.PI * 0.25);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(center, center + 4, 6, -Math.PI * 0.75, -Math.PI * 0.25);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(center, center + 5, 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (iconType === 'whatsapp') {
+      ctx.beginPath();
+      ctx.ellipse(center, center - 1, 9, 7.5, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(center - 4, center + 5);
+      ctx.lineTo(center - 7, center + 9);
+      ctx.lineTo(center - 1, center + 6);
+      ctx.stroke();
+    } else if (iconType === 'link') {
+      ctx.beginPath();
+      ctx.arc(center - 3, center, 4.5, Math.PI * 0.5, Math.PI * 1.5);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(center + 3, center, 4.5, -Math.PI * 0.5, Math.PI * 0.5);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(center - 3, center);
+      ctx.lineTo(center + 3, center);
+      ctx.stroke();
+    } else if (iconType === 'user') {
+      ctx.beginPath();
+      ctx.arc(center, center - 3, 3.5, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(center, center + 9, 7, -Math.PI * 0.85, -Math.PI * 0.15);
+      ctx.stroke();
+    }
   }
 
   function downloadPng() {
@@ -610,21 +644,21 @@ export default function QrStudioTool({ close }: QrStudioToolProps) {
                     className={centerIcon === 'wifi' ? 'active' : ''}
                     onClick={() => setCenterIcon('wifi')}
                   >
-                    📶 Wi-Fi
+                    <Wifi size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /> Wi-Fi
                   </button>
                   <button
                     type="button"
                     className={centerIcon === 'whatsapp' ? 'active' : ''}
                     onClick={() => setCenterIcon('whatsapp')}
                   >
-                    💬 WhatsApp
+                    <MessageCircle size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /> WhatsApp
                   </button>
                   <button
                     type="button"
                     className={centerIcon === 'link' ? 'active' : ''}
                     onClick={() => setCenterIcon('link')}
                   >
-                    🔗 Link
+                    <Link size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /> Link
                   </button>
                 </div>
               </div>

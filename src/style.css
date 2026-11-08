@@ -1078,11 +1078,13 @@ footer span {
   background: var(--modal-backdrop);
   backdrop-filter: blur(4px);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 50;
-  padding: 20px;
-  overflow: auto;
+  padding: 24px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal {
@@ -1097,20 +1099,30 @@ footer span {
   position: relative;
   box-shadow: var(--shadow-md);
   color: var(--text-main);
+  margin: auto;
 }
 
 .close {
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top: 16px;
+  right: 16px;
   border: 1px solid var(--border-subtle);
   background: var(--bg-subtle);
   color: var(--text-main);
   border-radius: 50%;
-  height: 34px;
-  width: 34px;
+  height: 44px;
+  width: 44px;
+  min-height: 44px;
+  min-width: 44px;
   display: grid;
   place-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.close:hover {
+  background: var(--border-card);
+  color: var(--text-main);
 }
 
 .info-modal h2 {
@@ -1138,8 +1150,8 @@ footer span {
 
 /* Tool Workspaces */
 .workspace-backdrop {
-  padding: 24px;
-  align-items: center;
+  padding: 24px 20px;
+  align-items: flex-start;
 }
 
 .tool-workspace {
@@ -1153,6 +1165,7 @@ footer span {
   box-shadow: var(--shadow-md);
   outline: 0;
   color: var(--text-main);
+  margin: auto;
 }
 
 .workspace-topbar {
@@ -1197,13 +1210,22 @@ footer span {
 }
 
 .workspace-close {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border: 1px solid var(--border-subtle);
   border-radius: 50%;
   display: grid;
   place-items: center;
   background: var(--bg-subtle);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.workspace-close:hover {
+  background: var(--border-card);
   color: var(--text-main);
 }
 
@@ -2090,7 +2112,14 @@ footer span {
   }
 }
 
-@media (max-width: 640px) {
+html.modal-open,
+body.modal-open {
+  overflow: hidden !important;
+  height: 100% !important;
+  overscroll-behavior: none !important;
+}
+
+@media (max-width: 768px) {
   .hero {
     padding: 32px 0 40px;
   }
@@ -2143,13 +2172,25 @@ footer span {
     flex-direction: column !important;
   }
   .workspace-topbar {
-    height: 48px !important;
-    padding: 0 12px !important;
+    min-height: calc(52px + env(safe-area-inset-top, 0px)) !important;
+    padding: env(safe-area-inset-top, 0px) 14px 0 !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 25 !important;
     background: var(--bg-surface) !important;
     border-bottom: 1px solid var(--border-subtle) !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  .workspace-back {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+  .workspace-close {
+    min-height: 44px !important;
+    min-width: 44px !important;
   }
   .workspace-private {
     display: none !important;
@@ -2215,7 +2256,7 @@ footer span {
     display: none !important;
   }
   .workspace-grid {
-    padding: 10px 12px 28px !important;
+    padding: 10px 12px calc(28px + env(safe-area-inset-bottom, 0px)) !important;
     gap: 12px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -2227,6 +2268,27 @@ footer span {
   }
   .organizer-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .phone-mockup-wrapper {
+    width: min(205px, 52vw) !important;
+    height: min(364px, 42vh) !important;
+    border-radius: 20px !important;
+  }
+  .codetoimg-preview-box,
+  .watermark-preview-box,
+  .aspectfit-preview-box,
+  .memegen-preview-box {
+    max-height: clamp(200px, 32vh, 320px) !important;
+    padding: 8px !important;
+  }
+  .codetoimg-preview-img,
+  .watermark-preview-img,
+  .aspectfit-preview-img,
+  .memegen-preview-img {
+    max-height: clamp(180px, 30vh, 290px) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
   }
 }
 
@@ -6036,7 +6098,7 @@ footer span {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--bg-input);
   border: 1px solid var(--border-card);
   border-radius: 14px;
   padding: 16px;
@@ -6768,7 +6830,7 @@ footer span {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .codetoimg-preview-box,
   .watermark-preview-box {
     max-height: 300px;
@@ -7740,7 +7802,7 @@ footer span {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .audioeq-sliders-strip {
     padding: 12px 4px;
   }
@@ -8313,7 +8375,7 @@ footer span {
   background: rgba(239, 68, 68, 0.12);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .cmd-backdrop {
     padding-top: 12px;
     padding-left: 8px;

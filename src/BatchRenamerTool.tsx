@@ -234,7 +234,7 @@ export default function BatchRenamerTool({ initialFiles = [], close }: BatchRena
                 <div className="batchrenamer-table-card">
                   <div className="table-header-row">
                     <span className="col-original">{t('Original Name')}</span>
-                    <span className="col-arrow">➔</span>
+                    <span className="col-arrow"><ArrowRight size={13} /></span>
                     <span className="col-new">{t('New Renamed Output')}</span>
                   </div>
 
@@ -242,7 +242,7 @@ export default function BatchRenamerTool({ initialFiles = [], close }: BatchRena
                     {files.map((file, idx) => (
                       <div key={idx} className="table-item-row">
                         <span className="col-original truncate">{file.name}</span>
-                        <span className="col-arrow">➔</span>
+                        <span className="col-arrow"><ArrowRight size={13} /></span>
                         <span className="col-new truncate badge-green-text">
                           {computeNewName(file, idx)}
                         </span>

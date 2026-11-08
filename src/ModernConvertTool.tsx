@@ -245,7 +245,7 @@ export default function ModernConvertTool({ initialFiles = [], close }: ModernCo
                       <span>{savedPercent > 0 ? `${savedPercent}% ${t('smaller')}` : t('Optimized')}</span>
                     </div>
                     <span>
-                      {(origSize / 1024).toFixed(1)} KB ➔ <strong>{(newSize / 1024).toFixed(1)} KB</strong>
+                      {(origSize / 1024).toFixed(1)} KB <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle', margin: '0 4px' }} /> <strong>{(newSize / 1024).toFixed(1)} KB</strong>
                     </span>
                     <button className="download-btn-green" onClick={downloadConverted}>
                       <Download size={16} />

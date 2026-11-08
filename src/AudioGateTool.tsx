@@ -513,7 +513,7 @@ export default function AudioGateTool({ initialFiles = [], close }: AudioGateToo
                   <div className="savings-pill-badge large">
                     <Sparkles size={16} />
                     <span>
-                      {formatTime(audioBuffer.duration)} ➔ <strong>{formatTime(trimmedDuration)}</strong> (-{timeSaved.toFixed(1)}s {t('trimmed')})
+                      {formatTime(audioBuffer.duration)} <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle', margin: '0 4px' }} /> <strong>{formatTime(trimmedDuration)}</strong> (-{timeSaved.toFixed(1)}s {t('trimmed')})
                     </span>
                   </div>
                 )}

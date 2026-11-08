@@ -310,6 +310,21 @@ function App() {
   const isHeroPdf = heroFile && (heroFile.type === 'application/pdf' || heroFile.name.toLowerCase().endsWith('.pdf'));
   const isHeroVideo = heroFile && (heroFile.type.startsWith('video/') || /\.(mp4|mov|webm|m4v|mkv)$/i.test(heroFile.name));
 
+  useEffect(() => {
+    const isModalOpen = Boolean(active || info || cmdOpen);
+    if (isModalOpen) {
+      document.documentElement.classList.add('modal-open');
+      document.body.classList.add('modal-open');
+    } else {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+    }
+    return () => {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+    };
+  }, [active, info, cmdOpen]);
+
   return (
     <>
       <header>
@@ -898,8 +913,8 @@ function App() {
                   <tbody>
                     <tr>
                       <td><strong>{t("File Upload to Server")}</strong></td>
-                      <td><span className="bad-pill">✕ {t("Yes, files sent over network")}</span></td>
-                      <td><span className="good-pill">✓ {t("Zero bytes uploaded (100% in-browser)")}</span></td>
+                      <td><span className="bad-pill"><X size={12} strokeWidth={2.5} aria-hidden="true" /> {t("Yes, files sent over network")}</span></td>
+                      <td><span className="good-pill"><Check size={12} strokeWidth={2.5} aria-hidden="true" /> {t("Zero bytes uploaded (100% in-browser)")}</span></td>
                     </tr>
                     <tr>
                       <td><strong>{t("Document Privacy")}</strong></td>
@@ -914,7 +929,7 @@ function App() {
                     <tr>
                       <td><strong>{t("Pricing & Subscriptions")}</strong></td>
                       <td>{t("Free trial with recurring fee")}</td>
-                      <td><span className="good-pill">✓ {t("100% Free and open source")}</span></td>
+                      <td><span className="good-pill"><Check size={12} strokeWidth={2.5} aria-hidden="true" /> {t("100% Free and open source")}</span></td>
                     </tr>
                   </tbody>
                 </table>

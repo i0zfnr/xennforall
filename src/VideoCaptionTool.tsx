@@ -444,7 +444,7 @@ export default function VideoCaptionTool({ initialFiles = [], close }: VideoCapt
                           onChange={(e) => updateSubtitle(sub.id, 'start', Number(e.target.value))}
                           className="sub-time-input"
                         />
-                        <span>➔</span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center' }}><ArrowRight size={13} /></span>
                         <input
                           type="number"
                           step="0.1"

@@ -874,7 +874,7 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
                 <div className="compression-impact-pill">
                   <Zap size={15} />
                   <span>
-                    <strong>{originalSizeMb.toFixed(1)} MB</strong> ➔ <strong>{resultSizeMb.toFixed(1)} MB</strong>{' '}
+                    <strong>{originalSizeMb.toFixed(1)} MB</strong> <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle', margin: '0 4px' }} /> <strong>{resultSizeMb.toFixed(1)} MB</strong>{' '}
                     ({savingsPct}% {t('smaller · Protected from WhatsApp blur')})
                   </span>
                 </div>
@@ -1044,19 +1044,19 @@ export default function StatusHdTool({ initialFiles = [], close }: StatusHdToolP
                   {showHdTrickGuide && (
                     <ol className="trick-steps">
                       <li>
-                        <strong>{t('1. Optimize here')}:</strong>{' '}
+                        <strong>{t('Optimize here')}:</strong>{' '}
                         {t('Download your status-calibrated video or image from this tool.')}
                       </li>
                       <li>
-                        <strong>{t('2. Send to yourself')}:</strong>{' '}
+                        <strong>{t('Send to yourself')}:</strong>{' '}
                         {t('Open WhatsApp, open "Message yourself" (or any personal chat), and attach the file.')}
                       </li>
                       <li>
-                        <strong>{t('3. Tap the HD button')}:</strong>{' '}
+                        <strong>{t('Tap the HD button')}:</strong>{' '}
                         {t('Tap the "HD" icon at the top of the WhatsApp preview before hitting send.')}
                       </li>
                       <li>
-                        <strong>{t('4. Forward to Status')}:</strong>{' '}
+                        <strong>{t('Forward to Status')}:</strong>{' '}
                         {t('Forward that sent message directly to "My Status". It bypasses the status compressor completely!')}
                       </li>
                     </ol>
