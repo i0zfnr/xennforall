@@ -577,7 +577,7 @@ function App() {
               <div className="workstation-suites">
                 <div className="suite-group">
                   <span className="suite-title">
-                    <Files size={13} /> {t("PDF Suite")}:
+                    <Files size={13} /> {t("PDF & Docs")}:
                   </span>
                   <div className="suite-chips">
                     <button onClick={() => setActive(tools.find((x) => x.id === 'signpdf')!)}>Sign</button>
@@ -585,50 +585,57 @@ function App() {
                     <button onClick={() => setActive(tools.find((x) => x.id === 'split')!)}>Split</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'organize')!)}>Organize</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'rotate')!)}>Rotate</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'pdfgrayscale')!)}>Ink Saver</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'pdf_metadata')!)}>PDF Meta</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'markdown_studio')!)}>Markdown</button>
                   </div>
                 </div>
+
                 <div className="suite-group">
                   <span className="suite-title">
-                    <Image size={13} /> {t("Image Studio")}:
+                    <Image size={13} /> {t("Image & Photo")}:
                   </span>
                   <div className="suite-chips">
                     <button onClick={() => setActive(tools.find((x) => x.id === 'passport')!)}>Passport</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'scandoc')!)}>Scan</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'tiktok')!)}>TikTok</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'status_hd')!)}>Status HD</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'livephoto')!)}>Live Photo</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'watermark_img')!)}>Watermark</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'faceblur')!)}>Face Blur</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'exifcleaner')!)}>EXIF Clean</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'aspect_fit')!)}>Aspect Fit</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'favicongen')!)}>Favicon</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'meme_gen')!)}>Meme</button>
                   </div>
                 </div>
+
                 <div className="suite-group">
                   <span className="suite-title">
-                    <Sparkles size={13} /> {t("Studio & AI")}:
+                    <Volume2 size={13} /> {t("Audio & Media")}:
                   </span>
                   <div className="suite-chips">
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'cinematic')!)}>Cinematic</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'faceblur')!)}>Face Blur</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'qrstudio')!)}>QR Studio</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'screenrecord')!)}>Screen Rec</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'audiocutter')!)}>Ringtone</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'encrypt')!)}>Vault</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'audiorecorder')!)}>Voice Memo</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'videotogif')!)}>GIF Maker</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'ocr_reader')!)}>OCR</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'watermark_img')!)}>Watermark</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'favicongen')!)}>Favicon</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'code_to_img')!)}>Code Card</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'base64_studio')!)}>Base64</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'status_hd')!)}>Status HD</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'tiktok')!)}>TikTok</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'audioreverb')!)}>Reverb</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'audio_eq')!)}>EQ</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'audio_eq')!)}>Vocal EQ</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'audio_8d')!)}>8D Audio</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'audio_gate')!)}>Voice Gate</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'aspect_fit')!)}>Aspect Fit</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'audiocutter')!)}>Ringtone</button>
                     <button onClick={() => setActive(tools.find((x) => x.id === 'video_captions')!)}>Captions</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'meme_gen')!)}>Meme</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'batch_renamer')!)}>Renamer</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'pdf_metadata')!)}>PDF Meta</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'hash_verifier')!)}>Hash Verify</button>
+                  </div>
+                </div>
+
+                <div className="suite-group">
+                  <span className="suite-title">
+                    <Code2 size={13} /> {t("Dev & Security")}:
+                  </span>
+                  <div className="suite-chips">
                     <button onClick={() => setActive(tools.find((x) => x.id === 'json_studio')!)}>JSON</button>
-                    <button onClick={() => setActive(tools.find((x) => x.id === 'markdown_studio')!)}>Markdown</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'hash_verifier')!)}>Hash Verify</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'base64_studio')!)}>Base64</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'code_to_img')!)}>Code Card</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'encrypt')!)}>Vault</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'svgoptimize')!)}>SVG Minify</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'qrstudio')!)}>QR Studio</button>
+                    <button onClick={() => setActive(tools.find((x) => x.id === 'batch_renamer')!)}>Renamer</button>
                   </div>
                 </div>
               </div>

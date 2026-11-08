@@ -222,14 +222,14 @@ header {
   padding: 8px 10px;
   font-size: 12px;
   font-weight: 500;
-  min-height: 40px;
+  min-height: 44px;
 }
 
 .theme-toggle {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
   color: var(--text-main);
@@ -247,8 +247,8 @@ header {
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
   border-radius: 8px;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   color: var(--text-main);
 }
@@ -678,31 +678,59 @@ h2 {
 .filters {
   display: flex;
   gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  padding-bottom: 4px;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
 }
 
 .filters button {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--bg-page);
-  border: 1px solid var(--border-subtle);
-  padding: 9px 14px;
-  border-radius: 7px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  padding: 8px 14px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 550;
   color: var(--text-secondary);
-  min-height: 40px;
+  min-height: 42px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.filters button:hover {
+  background: var(--bg-subtle);
+  border-color: var(--border-hover);
+  color: var(--text-main);
 }
 
 .filters button span {
   font-size: 11px;
-  opacity: 0.8;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
 .filters button.selected {
   background: var(--brand-primary);
   border-color: var(--brand-primary);
   color: var(--brand-primary-text);
+  box-shadow: 0 2px 8px rgba(37, 69, 49, 0.25);
+}
+
+.filters button.selected span {
+  background: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
 }
 
 .local-note {
@@ -768,6 +796,17 @@ h2 {
 .rose { background: rgba(202, 136, 159, 0.15); color: #A6476A; }
 .green { background: rgba(146, 162, 105, 0.15); color: #516C2E; }
 
+/* Dark Theme High-Contrast WCAG AA Icon Badges (R-25, R-34) */
+:root[data-theme="dark"] .coral { background: rgba(248, 113, 113, 0.16); color: #F87171; }
+:root[data-theme="dark"] .orange { background: rgba(251, 146, 60, 0.16); color: #FB923C; }
+:root[data-theme="dark"] .violet { background: rgba(167, 139, 250, 0.16); color: #A78BFA; }
+:root[data-theme="dark"] .blue { background: rgba(96, 165, 250, 0.16); color: #60A5FA; }
+:root[data-theme="dark"] .amber { background: rgba(251, 191, 36, 0.16); color: #FBBF24; }
+:root[data-theme="dark"] .teal { background: rgba(45, 212, 191, 0.16); color: #2DD4BF; }
+:root[data-theme="dark"] .rose { background: rgba(251, 113, 133, 0.16); color: #FB7185; }
+:root[data-theme="dark"] .green,
+:root[data-theme="dark"] .emerald { background: rgba(74, 222, 128, 0.16); color: #4ADE80; }
+
 .card-badges {
   display: flex;
   flex-direction: column;
@@ -776,18 +815,19 @@ h2 {
 }
 
 .tag {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   color: var(--text-secondary);
   background: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: 4px;
-  padding: 2px 6px;
+  padding: 2px 7px;
 }
 
 .card-format-tag {
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 500;
   color: var(--text-muted);
 }
 
@@ -7738,32 +7778,34 @@ footer span {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 8px;
-  background: var(--bg-surface-elevated, rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
-  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+  min-height: 42px;
 }
 
 .cmd-search-trigger:hover {
-  background: var(--bg-surface-hover, rgba(255, 255, 255, 0.08));
-  border-color: var(--border, rgba(255, 255, 255, 0.2));
-  color: var(--text-primary);
+  background: var(--bg-subtle);
+  border-color: var(--border-hover);
+  color: var(--text-main);
 }
 
 .cmd-search-trigger kbd {
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
+  padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(125, 125, 125, 0.15);
-  border: 1px solid rgba(125, 125, 125, 0.25);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
   font-family: inherit;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -7773,20 +7815,20 @@ footer span {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: clamp(40px, 12vh, 120px);
+  padding-top: clamp(32px, 10vh, 100px);
   padding-left: 16px;
   padding-right: 16px;
   animation: cmdFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes cmdFadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
+  from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -7794,10 +7836,10 @@ footer span {
 .cmd-modal {
   width: 100%;
   max-width: 660px;
-  background: var(--bg-surface, #14171f);
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
   border-radius: 14px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -7810,8 +7852,8 @@ footer span {
   align-items: center;
   gap: 12px;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
-  background: var(--bg-surface, #14171f);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
 }
 
 .cmd-search-icon {
@@ -7825,7 +7867,7 @@ footer span {
   border: 0;
   outline: 0;
   font-size: 15px;
-  color: var(--text-primary);
+  color: var(--text-main);
   font-family: inherit;
 }
 
@@ -7841,20 +7883,23 @@ footer span {
   border: 0;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 6px;
+  border-radius: 6px;
+  min-width: 32px;
+  min-height: 32px;
 }
 
 .cmd-clear-btn:hover {
-  color: var(--text-primary);
+  color: var(--text-main);
+  background: var(--bg-subtle);
 }
 
 .cmd-esc-badge {
   padding: 2px 7px;
   border-radius: 4px;
-  background: rgba(125, 125, 125, 0.14);
-  border: 1px solid rgba(125, 125, 125, 0.22);
-  font-size: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -7865,10 +7910,10 @@ footer span {
   align-items: center;
   gap: 6px;
   padding: 10px 16px;
-  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+  border-bottom: 1px solid var(--border-subtle);
   overflow-x: auto;
   scrollbar-width: none;
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--bg-subtle);
 }
 
 .cmd-filter-tabs::-webkit-scrollbar {
@@ -7878,36 +7923,38 @@ footer span {
 .cmd-tab {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
+  gap: 6px;
+  padding: 5px 11px;
   border-radius: 6px;
   background: transparent;
   border: 1px solid transparent;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 550;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.12s ease;
+  min-height: 32px;
 }
 
 .cmd-tab:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  background: var(--bg-surface);
 }
 
 .cmd-tab.active {
-  background: var(--bg-surface-elevated, rgba(255, 255, 255, 0.08));
-  border-color: var(--border-subtle, rgba(255, 255, 255, 0.15));
-  color: var(--text-primary);
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary-text);
 }
 
 .cmd-tab span {
   font-size: 10px;
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: 10px;
-  background: rgba(125, 125, 125, 0.2);
-  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+  font-weight: 600;
 }
 
 .tab-star-icon {
@@ -7919,31 +7966,34 @@ footer span {
   flex: 1;
   overflow-y: auto;
   padding: 8px;
-  max-height: 400px;
+  max-height: 420px;
   display: flex;
   flex-direction: column;
   gap: 3px;
+  background: var(--bg-surface);
 }
 
 .cmd-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.12s ease;
   user-select: none;
+  border: 1px solid transparent;
 }
 
 .cmd-item:hover,
 .cmd-item.active {
-  background: var(--bg-surface-hover, rgba(255, 255, 255, 0.06));
+  background: var(--bg-subtle);
+  border-color: var(--border-subtle);
 }
 
 .cmd-item-icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -7964,38 +8014,41 @@ footer span {
 }
 
 .cmd-item-name {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .cmd-item-tag {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   padding: 1px 6px;
   border-radius: 4px;
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
 }
 
 .cmd-item-format {
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--text-muted);
-  border-left: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  border-left: 1px solid var(--border-subtle);
   padding-left: 6px;
 }
 
 .cmd-item-desc {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 12.5px;
+  color: var(--text-secondary);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
 .cmd-item-actions {
@@ -8009,8 +8062,8 @@ footer span {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 6px;
   border: 0;
   background: transparent;
@@ -8020,7 +8073,7 @@ footer span {
 }
 
 .cmd-fav-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-subtle);
   color: #f59e0b;
 }
 
@@ -8035,7 +8088,7 @@ footer span {
   width: 24px;
   height: 24px;
   border-radius: 5px;
-  background: rgba(125, 125, 125, 0.12);
+  background: var(--bg-subtle);
   color: var(--text-muted);
   opacity: 0;
   transition: opacity 0.12s ease;
@@ -8048,21 +8101,27 @@ footer span {
 
 /* Empty State */
 .cmd-empty {
-  padding: 40px 20px;
+  padding: 44px 20px;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 13.5px;
 }
 
 .cmd-empty-reset {
-  margin-top: 10px;
-  padding: 6px 14px;
+  margin-top: 12px;
+  padding: 7px 16px;
   border-radius: 6px;
-  background: var(--bg-surface-elevated, rgba(255, 255, 255, 0.08));
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
-  color: var(--text-primary);
+  background: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
+  color: var(--brand-primary-text);
   font-size: 12.5px;
+  font-weight: 550;
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.cmd-empty-reset:hover {
+  background: var(--brand-primary-hover);
 }
 
 /* Palette Footer */
@@ -8071,8 +8130,8 @@ footer span {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
-  background: rgba(0, 0, 0, 0.18);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
   font-size: 11px;
   color: var(--text-muted);
 }
@@ -8097,18 +8156,23 @@ footer span {
   height: 18px;
   padding: 0 4px;
   border-radius: 3px;
-  background: rgba(125, 125, 125, 0.15);
-  border: 1px solid rgba(125, 125, 125, 0.25);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   font-size: 9.5px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-main);
 }
 
 .cmd-footer-privacy {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #10b981;
+  color: var(--brand-primary);
+  font-weight: 550;
+}
+
+:root[data-theme="dark"] .cmd-footer-privacy {
+  color: #4ADE80;
 }
 
 /* ==========================================================================
@@ -8119,8 +8183,8 @@ footer span {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
@@ -8132,7 +8196,7 @@ footer span {
 }
 
 .card-star-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-subtle);
   color: #f59e0b;
 }
 
@@ -8145,8 +8209,8 @@ footer span {
   margin-bottom: 28px;
   padding: 18px 20px;
   border-radius: 14px;
-  background: var(--bg-surface-elevated, rgba(255, 255, 255, 0.03));
-  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  background: var(--bg-page);
+  border: 1px solid var(--border-card);
 }
 
 .favorites-shelf-header {
@@ -8160,11 +8224,12 @@ footer span {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-main);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-family: 'Manrope', sans-serif;
 }
 
 .favorites-shelf-title .shelf-star {
@@ -8174,11 +8239,12 @@ footer span {
 .favorites-shelf-count {
   font-size: 11px;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
 .favorites-shelf-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 10px;
 }
 
@@ -8188,24 +8254,24 @@ footer span {
   gap: 10px;
   padding: 10px 14px;
   border-radius: 10px;
-  background: var(--bg-surface, #14171f);
-  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
   cursor: pointer;
   transition: all 0.15s ease;
   text-align: left;
-  color: var(--text-primary);
+  color: var(--text-main);
   width: 100%;
 }
 
 .fav-chip-card:hover {
-  background: var(--bg-surface-hover, rgba(255, 255, 255, 0.08));
-  border-color: var(--border, rgba(255, 255, 255, 0.22));
+  background: var(--bg-subtle);
+  border-color: var(--border-hover);
   transform: translateY(-1px);
 }
 
 .fav-chip-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -8220,20 +8286,21 @@ footer span {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--text-main);
 }
 
 .fav-chip-unpin {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 4px;
   border: 0;
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  opacity: 0.5;
+  opacity: 0.6;
   transition: all 0.12s ease;
 }
 
@@ -8243,14 +8310,14 @@ footer span {
 
 .fav-chip-unpin:hover {
   color: #ef4444;
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.12);
 }
 
 @media (max-width: 640px) {
   .cmd-backdrop {
-    padding-top: 16px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-top: 12px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   .cmd-shortcuts {
     display: none;
@@ -8260,5 +8327,15 @@ footer span {
   }
   .favorites-shelf-grid {
     grid-template-columns: 1fr;
+  }
+  .cmd-search-trigger span,
+  .cmd-search-trigger kbd {
+    display: none;
+  }
+  .cmd-search-trigger {
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
   }
 }
